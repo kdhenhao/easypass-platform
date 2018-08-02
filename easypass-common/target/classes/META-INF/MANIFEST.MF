@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: jkong1
+Build-Jdk: 1.8.0_151
+Specification-Title: easypass-common
+Specification-Version: 0.0.1-SNAPSHOT
+Implementation-Title: easypass-common
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: cn.bluemobi
+Created-By: Maven Integration for Eclipse
+
