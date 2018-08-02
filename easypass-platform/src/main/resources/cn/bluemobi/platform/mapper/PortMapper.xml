@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.PortMapper">
+	<select id="findPorts" resultType="Map">
+	select 
+    fp.id ,
+    fp.port_name as portName,
+    fp.port_status as portStatus,
+    fp.create_by,
+    su.full_name as createBy,
+    fp.modify_by,
+    su2.full_name as modifyBy,
+    date_format(fp.create_tm,'%Y-%m-%d %H:%i:%s') as createTm,
+    date_format(fp.modify_tm,'%Y-%m-%d %H:%i:%s') as modifyTm
+    from flight_port fp
+    left join system_user su on fp.create_by = su.id
+    left join system_user su2 on fp.modify_by = su2.id
+    order by fp.port_name
+	</select>
+	
+	<update id="startById">
+	update flight_port set port_status = '0' where id = #{0}
+	</update>
+	
+	<update id="stopById">
+	update flight_port set port_status = '1' where id = #{0}
+	</update>
+	
+	<select id="existPort" resultType="int">
+	select count(1) from flight_port where port_name = #{0}
+	</select>
+	<select id="existPort2" resultType="int">
+	select count(1) from flight_port where port_name = #{0} and id &lt;&gt; #{1}
+	</select>
+	
+	<insert id="insertPort">
+	insert into flight_port (port_name,create_by,create_tm) values (#{0},#{1},now())
+	</insert>
+	<update id="updatePort">
+	update flight_port set port_name = #{0}, modify_by = #{1}, modify_tm = now() where id = #{2}
+	</update>
+	
+	<select id="findPortsForSelect" resultType="Option">
+	select port_name as text,id as value from flight_port where port_status = '0'
+	</select>
+</mapper>

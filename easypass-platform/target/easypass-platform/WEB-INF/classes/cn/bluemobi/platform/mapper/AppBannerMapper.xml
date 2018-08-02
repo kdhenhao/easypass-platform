@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.AppBannerMapper" >
+    <select id="findAppBannerListByPage"  resultType="AppBanner" parameterType="map">
+    	SELECT 	t1.id, 
+			t1.POSITION, 
+			t1.title, 
+			t1.img, 
+			t1.content, 
+			t1.sort, 
+			t1.link_type AS linkType, 
+			t1.link_url AS linkUrl, 
+			t1.STATUS, 
+			t1.course_id AS courseId, 
+			t1.campus_id AS campusId, 
+			t2.name AS courseName,
+			t3.name AS campusName,
+			DATE_FORMAT(t1.create_time,'%Y-%m-%d %h:%m:%s') AS createTime, 
+			DATE_FORMAT(t1.modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTime
+			 
+			FROM app_banner t1 
+			LEFT JOIN course t2 ON t1.course_id=t2.id 
+			LEFT JOIN app_campus t3 ON t1.campus_id=t3.id
+			
+			WHERE 1=1
+	<if test="status != null">
+		<![CDATA[ and t1.status = #{status,jdbcType=INTEGER} ]]> 
+	</if> 
+    	order by t1.campus_id desc
+    </select>
+    
+    <!-- 添加 -->
+    <insert id="addAppBanner" parameterType="AppBanner">
+    	INSERT INTO app_banner 
+			(title, 
+			img, 
+			content, 
+			sort, 
+			course_id,
+			STATUS, 
+			campus_id, 
+			create_time, 
+			modify_time
+			)
+			VALUES
+			(#{title}, 
+			#{img}, 
+			#{content}, 
+			#{sort}, 
+			#{courseId},
+			#{status}, 
+			#{campusId}, 
+			now(), 
+			now()
+			);
+    </insert>
+    
+    <!-- 更新status状态 -->
+    <update id="updateAppBannerStatus">
+	   	update app_banner set status=#{0} where id=#{1}
+	</update>
+	
+	<!-- 修改 -->
+	<update id="updateAppBanner" parameterType="AppBanner">
+		UPDATE app_banner 
+			SET
+			title = #{title} , 
+			img = #{img} , 
+			content = #{content} , 
+			sort = #{sort} , 
+			course_id=#{courseId},
+			STATUS = #{status} , 
+			campus_id = #{campusId} , 
+			modify_time = now()
+			
+			WHERE
+			id = #{id}
+	</update>
+	
+	<delete id="deleteAppBannerById">
+		DELETE FROM app_banner WHERE id = #{id}
+	</delete>
+
+</mapper>

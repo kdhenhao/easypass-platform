@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.OrderCourseMapper">
+	<select id="findOrderCourseList" resultType="Map" parameterType="Map">
+		SELECT t1.id,t1.order_no AS orderNo,t2.user_name AS userName,t2.email,t1.price,t1.points,t2.phone ,
+		t1.order_status AS orderStatus,DATE_FORMAT(t1.create_time,'%Y-%m-%d %h:%m:%s') as createTime,t1.status 
+		FROM order_course t1 LEFT JOIN app_user t2 
+		ON t1.user_id=t2.id where 1=1 
+			
+		<if test="orderNo!=null and orderNo!=''">
+	      <![CDATA[ AND t1.order_no LIKE concat('%',#{orderNo},'%') ]]> 
+	    </if>
+		<if test="userName!=null and userName!=''">
+	      <![CDATA[ AND t2.user_name like concat('%',#{userName},'%') ]]> 
+	    </if>
+	    <if test="beginTime!=null and beginTime!=''">
+	      <![CDATA[ AND t1.create_time >= #{beginTime} ]]> 
+	    </if>
+	    <if test="endTime!=null and endTime!=''">
+	      <![CDATA[ AND t1.create_time <= #{endTime} ]]> 
+	    </if>
+	    <if test="status!=null and status!=''">
+	      <![CDATA[ AND t1.order_status=#{status} ]]> 
+	    </if>
+	    ORDER BY t1.create_time DESC 
+	</select>
+	
+	<!-- 订单明细 -->
+	<select id="findOrderCourseDetail" resultType="map" parameterType="map">
+		<!-- 		SELECT t3.courseName,t3.classHourName,t3.price,t1.quantity FROM order_course_detail t1  -->
+<!-- 		LEFT JOIN order_course t2 ON t1.order_no=t2.order_no -->
+<!-- 		LEFT JOIN (SELECT t3.id AS classHourId,t3.name AS classHourName,t4.name AS courseName,t3.price FROM course_class_hour t3 LEFT JOIN course t4 ON t3.course_id=t4.id ) t3 -->
+<!-- 			ON t1.class_hour_id=t3.classHourId -->
+<!-- 			WHERE t1.order_no=#{orderNo} -->
+		SELECT t3.name AS courseName,'' AS classHourName,t3.price,t3.points,t1.quantity 
+		FROM order_course_detail t1 
+		LEFT JOIN order_course t2 ON t1.order_no=t2.order_no
+		LEFT JOIN course t3 ON t1.course_id=t3.id 
+		WHERE t1.order_no=#{orderNo} AND t1.course_flag=1
+		
+		UNION ALL 
+		
+		SELECT t3.courseName,t3.classHourName,t3.price,t1.quantity 
+		FROM order_course_detail t1 
+		LEFT JOIN order_course t2 ON t1.order_no=t2.order_no 
+		LEFT JOIN (SELECT t3.id AS classHourId,t3.name AS classHourName,t4.name AS courseName,t3.price,t3.points,
+		FROM course_class_hour t3 LEFT JOIN course t4 ON t3.course_id=t4.id ) t3
+		ON t1.class_hour_id=t3.classHourId 
+		WHERE t1.order_no=#{orderNo} AND t1.course_flag=0
+	</select>
+	
+	<update id="updateStatus">
+		UPDATE order_course SET order_status=#{1} where id=#{0} 
+	</update>
+	
+	<update id="updateFileStatus">
+		UPDATE order_course SET status=#{1} where id=#{0} 
+	</update>
+	
+	<delete id="deleteOrderById">
+		DELETE FROM order_course WHERE id =#{orderId} 
+	</delete>
+	
+	<!-- 删除订单明细 -->
+	<delete id="deleteOrderDetail">
+		DELETE FROM order_course_detail WHERE order_no =#{orderNo} 
+	</delete>
+</mapper>

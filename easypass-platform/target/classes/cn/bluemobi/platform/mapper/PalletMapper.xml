@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.PalletMapper">
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+	insert into pallet (
+    pallet_name,
+    create_by,
+    create_tm ,
+    status 
+	) values (
+	#{palletName},
+	#{createBy},
+	now(),
+	'orderConfiged'
+	)
+	</insert>
+	
+	<update id="updateOrderStatusOrderConfiged">
+	update order_main set 
+	pallet_id = #{id},
+	status = 'orderConfiged'
+	where id in 
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach> 
+	</update>
+	
+	<update id="updateOrderStatusOrderConfigedOneByOne">
+	update order_main set 
+	pallet_id = #{id},
+	status = 'orderConfiged',
+	pallet_sort = #{palletSort}
+	where id = #{orderId}
+	</update>
+	
+	<select id="findPallets" resultType="Map">
+	select 
+	p.id ,
+    p.pallet_name palletName,
+    p.flight_id flightId,
+    fm.flight_no as flightNo,
+    date_format(fm.flight_date,'%Y-%m-%d') as flightDate,
+    p.status as status,
+    p.create_by as createBy,
+    date_format(p.create_tm ,'%Y-%m-%d %H:%s:%i')
+    from pallet p
+    left join flight_main fm on p.flight_id = fm.id
+    where 1=1
+    <if test="flightNo != null and flightNo != ''">
+    and flight_no like concat('%',#{flightNo},'%')
+    </if>
+    <if test="palletName != null and palletName != ''">
+    and p.pallet_name like concat('%',#{palletName},'%')
+    </if>
+    <if test="status != null and status != ''">
+    and p.status = #{status}
+    </if>
+    order by p.pallet_name desc
+	</select>
+	
+	<update id="updatePalletStatus">
+	update pallet set status = #{0},modify_by = #{1} ,modify_tm = now() where id = #{2}
+	</update>
+	
+	<update id="updateOrderStatus">
+	update order_main set status = #{0},modify_by = #{1} ,modify_tm = now() where id = #{2}
+	</update>
+	
+	<update id="updateFlight">
+	update pallet set status = 'flightConfiged',flight_id = #{0},modify_by = #{1} ,modify_tm = now() where id = #{2}
+	</update>
+	
+	<update id="deleteById">
+	delete from pallet where id = #{0}
+	</update>
+	
+	<update id="releaseOrder">
+	update order_main set status = 'orderConfiged',pallet_id = null where pallet_id = #{0}
+	</update>
+	
+	<select id="hasOrder" resultType="int">
+	select count(1) from order_main where pallet_id = #{1} and order_no = #{0}
+	</select>
+	
+	<update id="addOrder">
+	update order_main set 
+	pallet_id = #{2} ,
+	modify_by = #{1},
+	modify_tm = now(),
+	status = (select p.status from pallet p where p.id = #{2} ),
+	pallet_sort = (select ifnull( maxNo,0) from (select max(om.pallet_sort)+1 as maxNo from order_main om where om.pallet_id = #{2}) temp)
+	where order_no = #{0}
+	</update>
+	
+	<update id="releaseOrderByOrderId">
+	update order_main set status = 'orderConfiged',pallet_id = null where id = #{0}
+	</update>
+	
+	<select id="findNameById" resultType="String">
+	select pallet_name from pallet where id = #{0}
+	</select>
+	
+	
+	<select id="findItemsByPalletId" resultType="Map">
+	SELECT 
+om.order_no AS orderNo,
+om.sender_name AS senderName,
+om.sender_phone as senderPhone,
+CONCAT(IFNULL(om.sender_province,''),IFNULL(om.sender_city,''),IFNULL(om.sender_district,''),IFNULL(om.sender_address,'')) AS senderAddress,
+oc.`barcode` AS barcode,
+oc.brand,
+oc.`cn_name` AS cnName,
+oc.`en_name` AS enName,
+oc.`count`,
+oc.counter,
+oc.`gross_weight` as grossWeight,
+oc.net_weight as netWeight,
+oc.`unit`,
+oc.`price`,
+oc.`tax_no` as taxNo,
+om.receiver_name AS receiverName,
+om.fake_receiver_name AS fakeReceiverName,
+om.receiver_phone as receiverPhone,
+om.fake_receiver_phone as fakeReceiverPhone,
+om.receiver_province_code as receiverProvinceCode,
+om.receiver_city_code as receiverCityCode,
+om.receiver_district_code as receiverDistrictCode,
+IFNULL(om.receiver_province,'') as receiverProvince,
+IFNULL(om.receiver_city,'') as receiverCity,
+IFNULL(om.receiver_district,'') as receiverDistrict,
+IFNULL(om.receiver_address,'') AS receiverAddress,
+om.fake_receiver_province_code as fakeReceiverProvinceCode,
+om.fake_receiver_city_code as fakeReceiverCityCode,
+om.fake_receiver_district_code as fakeReceiverDistrictCode,
+IFNULL(om.fake_receiver_province,'') as fakeReceiverProvince,
+IFNULL(om.fake_receiver_city,'') as fakeReceiverCity,
+IFNULL(om.fake_receiver_district,'') as fakeReceiverDistrict,
+IFNULL(om.fake_receiver_address,'') AS fakeReceiverAddress,
+om.has_pic AS hasPic,
+om.idcard_no AS idcardNo,
+om.fake_idcard_no AS fakeIdcardNo
+
+FROM order_commodity oc
+LEFT JOIN order_main om ON oc.`order_id` = om.id
+LEFT JOIN pallet p ON om.pallet_id = p.id
+where p.id = #{0}
+order by om.pallet_sort asc
+	</select>
+	
+	<select id="findDeclarationByPalletId" resultType="Map">
+	SELECT 
+	om.order_no AS orderNo,
+	om.receiver_name AS receiverName,
+	om.receiver_phone as receiverPhone,
+	om.fake_receiver_name AS fakeReceiverName,
+	om.idcard_no AS idcardNo,
+	om.fake_idcard_no AS fakeIdcardNo,
+	om.receiver_province as receiverProvince,
+	om.receiver_province_code as receiverProvinceCode,
+	om.receiver_city as receiverCity,
+	om.receiver_city_code as receiverCityCode,
+	om.receiver_district as receiverDistrict,
+	om.receiver_district_code as receiverDistrictCode,
+	om.receiver_address as receiverAddress,
+	om.total_price as totalPrice,
+	om.total_weight as totalWeight,
+	om.has_pic as hasPic,
+	om.clear_no as clearNo,
+	(select group_concat(concat(oc.cn_name,' * ',oc.count)) from order_commodity oc where oc.order_id = om.id group by oc.order_id) as goods,
+	om.sender_name as senderName,
+	om.sender_phone as senderPhone,
+	om.sender_province as senderProvince,
+	om.sender_city as senderCity,
+	om.sender_district as senderDistrict,
+	om.sender_address as senderAddress
+	from order_main om
+	where om.pallet_id = #{0}
+	order by om.pallet_sort asc
+	</select>
+	
+	<select id="findOrderIds" resultType="Long">
+	select om.id from order_main om where om.pallet_id = #{0}
+	</select>
+</mapper>

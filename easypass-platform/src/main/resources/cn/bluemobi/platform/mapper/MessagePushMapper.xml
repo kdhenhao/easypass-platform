@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.MessagePushMapper">
+	<select id="findPushes" resultType="MessagePush" parameterType="map">
+		SELECT id,
+		msg_type as msgType,
+		msg_header as msgHeader,
+		msg_detail as msgDetail,
+		DATE_FORMAT(create_time,'%Y-%m-%d %h:%m:%s') AS createTm,
+		push_status as pushStatus
+
+		FROM message_push where 1=1
+		<if test="startDate != null and startDate != ''">
+			and create_time &gt;= str_to_date(#{startDate},'%Y-%m-%d')
+		</if>
+		<if test="endDate != null and endDate != ''">
+			and create_time &lt;= date_add(str_to_date(#{endDate},'%Y-%m-%d'),
+			INTERVAL 1 day)
+		</if>
+		<if test="msgType != null and msgType != ''">
+			and msg_type = #{msgType}
+		</if>
+		<if test="msgHeader != null and msgHeader != ''">
+			and msg_header like concat ('%',#{msgHeader},'%')
+		</if>
+		order by create_time desc
+	</select>
+
+	<!-- 添加 -->
+	<insert id="inertMsgPush" parameterType="MessagePush">
+		INSERT INTO message_push (
+		msg_type,
+		msg_header,
+		msg_detail,
+		create_time
+		)
+		VALUES
+		(#{msgType},
+		#{msgHeader},
+		#{msgDetail},
+		now()
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="updateMsgPush" parameterType="MessagePush">
+		update message_push set
+		msg_type = #{msgType},
+		msg_header = #{msgHeader},
+		msg_detail = #{msgDetail}
+		where id = #{id}
+
+	</update>
+	<!-- 删除 -->
+	<delete id="deleteMsgPush">
+		DELETE FROM message_push WHERE id = #{id}
+	</delete>
+
+	<!-- 修改推送状态 -->
+	<update id="updatePushStatus" parameterType="int">
+		update message_push set
+		push_status=1 
+		where id = #{id}
+
+	</update>
+	
+	<select id="getMsgById" resultType="MessagePush">
+		SELECT id,
+		msg_type as msgType,
+		msg_header as msgHeader,
+		msg_detail as msgDetail,
+		DATE_FORMAT(create_time,'%Y-%m-%d %h:%m:%s') AS createTm
+		FROM message_push where 1=1 and id = #{id}
+	</select>
+</mapper>

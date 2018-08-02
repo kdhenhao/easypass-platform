@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.CourseMajorClassifyMapper" >
+	<select id="getAllClassifyList" resultType="Classify" parameterType="map">
+		select t1.id,
+		t1.name,
+		t1.img,
+		t1.sort, 
+		t1.campus_id as campusId, 
+		t1.create_time,
+		t2.name as campusName 
+		from course_classify t1 
+		LEFT JOIN app_campus t2 on t1.campus_id=t2.id 
+		where 1=1
+		<if test="name !=null and name !=''">
+		<![CDATA[	and name like  CONCAT('%',#{name},'%') ]]> 
+		</if>
+		<if test="campusName !=null and campusName !=''">
+		<![CDATA[	and campusName like  CONCAT('%',#{campusName},'%') ]]> 
+		</if>
+		order by sort asc
+	</select>
+	
+	<insert id="add" parameterType="Classify">
+		insert into course_classify values(#{id},#{name},#{parentId},#{level},#{sort},#{img},#{campusId},now(),now())
+	</insert>
+	
+	<!-- 编辑 -->
+	<update id="update" parameterType="Classify">
+		update course_classify set 
+		name = #{name},
+		sort = #{sort},
+		img = #{img},
+		campusId = #{campusId},
+		MODIFY_Time =Now()
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteById">
+		delete from course_classify where id=#{id}
+	</delete>
+</mapper>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.CourseStatisticsMapper">
+<select id="findCourseStatistics" resultType="Map">
+     <if test="courseFlag == 1">
+		 SELECT
+		 t1.order_no as orderNo,
+		 t1.course_id,
+		 t3.name as courseName,
+		 '全课程' as courseHourName,
+		 t3.price as price,
+		 case when t2.payway='0' then '微信支付'
+		     when t2.payway='1' then '支付宝支付'
+		     when t2.payway='2' then 'PayPal支付'
+		     when t2.payway='3' then '苹果支付'
+		     else '其他' end as payWay,
+		 date_format(t2.pay_time,'%Y-%m-%d %h:%m:%s') as payTime
+	     FROM order_course_detail t1 
+	     LEFT JOIN order_course t2 
+	     ON t1.order_no=t2.order_no 
+	     AND t1.course_flag=1
+	     LEFT JOIN course t3 
+	     ON t1.course_id=t3.id 
+	     WHERE t2.order_status=1
+		<if test="courseName != null and courseName != ''">
+		 and t3.name =#{courseName}
+		</if>
+		<if test="beginTime != null and beginTime != ''">
+			and date_format(t2.pay_time,'%Y-%m-%d') >= #{beginTime} 
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and #{endTime} >= date_format(t2.pay_time,'%Y-%m-%d')
+			
+		</if>
+	
+	 </if>
+	  
+	 <if test="courseFlag == 0">
+		 SELECT
+		 t1.order_no as orderNo,
+		 t1.class_hour_id,
+		 t4.name as courseName, 
+		 t3.name as courseHourName,
+		 t3.price as price,
+		 case when t2.payway='0' then '微信支付'
+		     when t2.payway='1' then '支付宝支付'
+		     when t2.payway='2' then 'PayPal支付'
+		     when t2.payway='3' then '苹果支付'
+		     else '其他' end as payWay,
+		 date_format(t2.pay_time,'%Y-%m-%d') as payTime
+	     FROM order_course_detail t1 
+	     LEFT JOIN order_course t2 
+	     ON t1.order_no=t2.order_no 
+	     AND t1.course_flag=0
+	     LEFT JOIN course_class_hour t3 
+	     ON t3.id=t1.class_hour_id 
+	     LEFT JOIN course t4 
+	     ON t4.id=t1.course_id 
+	     WHERE t2.order_status=1
+		<if test="courseName != null and courseName != ''">
+		 	and t4.name = #{courseName}
+		</if>
+		
+		<if test="courseHourName != null and courseHourName != ''">
+		 	and t3.name = #{courseHourName}
+		</if>
+		
+		<if test="beginTime != null and beginTime != ''">
+			and date_format(t2.pay_time,'%Y-%m-%d') >= #{beginTime} 
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and #{endTime} >= date_format(t2.pay_time,'%Y-%m-%d')
+		</if>
+		
+	</if>
+	
+	
+</select>
+
+
+<select id="findTotal" resultType="BigDecimal" parameterType="Map">
+	
+	<if test="courseFlag == 1">
+		 SELECT
+		 sum(t3.price) as totalPrice
+	     FROM order_course_detail t1 
+	     LEFT JOIN order_course t2 
+	     ON t1.order_no=t2.order_no 
+	     AND t1.course_flag=1
+	     LEFT JOIN course t3 
+	     ON t1.course_id=t3.id 
+	     WHERE t2.order_status=1
+		<if test="courseName != null and courseName != ''">
+	 		and t3.name =#{courseName}
+	</if>
+	
+	<if test="beginTime != null and beginTime != ''">
+		and date_format(t2.pay_time,'%Y-%m-%d') >= #{beginTime} 
+	</if>
+	<if test="endTime != null and endTime != ''">
+		and #{endTime} >= date_format(t2.pay_time,'%Y-%m-%d')
+		
+	</if>
+	
+	 </if> 
+	
+	 <if test="courseFlag == 0">
+		 SELECT
+		 sum(t3.price) as totalPrice
+	     FROM order_course_detail t1 
+	     LEFT JOIN order_course t2 
+	     ON t1.order_no=t2.order_no 
+	     AND t1.course_flag=0
+	     LEFT JOIN course_class_hour t3 
+	     ON t3.id=t1.class_hour_id 
+	     LEFT JOIN course t4 
+	     ON t4.id=t1.course_id 
+	     WHERE t2.order_status=1
+	<if test="courseName != null and courseName != ''">
+	 	and t4.name = #{courseName}
+	</if>
+	
+	<if test="courseHourName != null and courseHourName != ''">
+	 	and t3.name = #{courseHourName}
+	</if>
+	
+	<if test="beginTime != null and beginTime != ''">
+		and date_format(t2.pay_time,'%Y-%m-%d') >= #{beginTime} 
+	</if>
+	<if test="endTime != null and endTime != ''">
+		and #{endTime} >= date_format(t2.pay_time,'%Y-%m-%d')
+	</if> 
+	
+	</if>
+	
+	
+</select>
+
+
+<select id="findCourseForSelect" resultType="Map">
+	select distinct name,id from course
+</select>
+
+<select id="findCourseHourNameForSelect" resultType="Map">
+	select distinct name from course_class_hour  where course_class_hour.course_id = #{0}
+</select>  
+</mapper>

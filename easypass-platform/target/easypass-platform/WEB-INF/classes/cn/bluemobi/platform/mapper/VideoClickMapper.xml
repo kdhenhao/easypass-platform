@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.VideoClickMapper">
+	<select id="findVideoClick" resultType="Map">
+	select 
+	vc.id as id ,
+    c.name as courseName,
+    cc.name as classHourName,
+    vc.click_num as clickNum
+    from  (video_click vc
+    left join course c on vc.course_id = c.id)
+    left join course_class_hour cc on vc.class_hour_id = cc.id 
+    <where>
+     <if test="courseName != null and clientName != ''">
+    and c.name like concat('%',#{courseName},'%')
+    </if>
+    <if test="classHourName != null and classHourName != ''">
+    and cc.name like concat('%',#{classHourName},'%')
+    </if>
+    </where>
+    order by vc.click_num desc 
+	</select>
+	
+</mapper>

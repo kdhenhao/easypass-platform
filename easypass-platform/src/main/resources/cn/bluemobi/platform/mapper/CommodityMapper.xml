@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.CommodityMapper" >
+	
+	<select id="findCommodities" resultType="Map">
+	select 
+	id,
+	en_name as enName,
+    cn_name cnName,
+    brand ,
+    barcode ,
+    gross_weight grossWeight,
+    net_weight netWeight,
+    unit ,
+    counter ,
+    price ,
+    tax_no taxNo,
+    tax_id as taxId
+    from commodity
+    where 1=1
+    <if test="cnName != null and cnName != ''">
+    and ( cn_name like concat('%',#{cnName},'%') or en_name like concat('%',#{cnName},'%'))
+    </if>
+    <if test="barcode != null and barcode != ''">
+    and barcode like concat('%',#{barcode},'%')
+    </if>
+    <if test="taxNo != null and taxNo != ''">
+    and tax_no like concat('%',#{taxNo},'%')
+    </if>
+    <if test="brand != null and brand != ''">
+    and brand like concat('%',#{brand},'%')
+    </if>
+    order by id, barcode
+	</select>
+	
+	<insert id="insert">
+	insert into commodity (
+    en_name ,
+    cn_name ,
+    brand,
+    barcode,
+    gross_weight,
+    net_weight ,
+    unit ,
+    counter,
+    price ,
+    tax_no ,
+    tax_id ,
+    create_by,
+    create_tm
+    ) values (
+    #{enName,jdbcType=VARCHAR},
+    #{cnName,jdbcType=VARCHAR},
+    #{brand,jdbcType=VARCHAR},
+    #{barcode,jdbcType=VARCHAR},
+    #{grossWeight,jdbcType=DOUBLE},
+    #{netWeight,jdbcType=DOUBLE},
+    #{unit,jdbcType=VARCHAR},
+    #{counter,jdbcType=VARCHAR},
+    #{price ,jdbcType=DECIMAL},
+    #{taxNo ,jdbcType=VARCHAR},
+    #{taxId ,jdbcType=BIGINT},
+    #{createBy},
+    now()
+    )
+	</insert>
+	
+	<update id="update">
+	update commodity set
+    en_name = #{enName,jdbcType=VARCHAR},
+    cn_name = #{cnName,jdbcType=VARCHAR},
+    brand = #{brand,jdbcType=VARCHAR},
+    barcode = #{barcode,jdbcType=VARCHAR},
+    gross_weight = #{grossWeight,jdbcType=DOUBLE},
+    net_weight = #{netWeight,jdbcType=DOUBLE},
+    unit = #{unit,jdbcType=VARCHAR},
+    counter = #{counter,jdbcType=VARCHAR},
+    price = #{price ,jdbcType=DECIMAL},
+    tax_no = #{taxNo ,jdbcType=VARCHAR},
+    tax_id = #{taxId ,jdbcType=BIGINT},
+    modify_by = #{modifyBy},
+    modify_tm = now()
+    where id = #{id}
+	</update>
+	
+	<select id="findById" resultType="Map">
+	select 
+	id,
+	en_name as enName,
+    cn_name cnName,
+    brand ,
+    barcode ,
+    gross_weight grossWeight,
+    net_weight netWeight,
+    unit ,
+    counter ,
+    price ,
+    tax_no taxNo,
+    tax_id as taxId
+    from commodity
+    where id = #{0}
+	</select>
+</mapper>

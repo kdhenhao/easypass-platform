@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.AppUserRecordMapper" >
+	<select id="getAppUserRecordList" parameterType="Map" resultType="cn.bluemobi.platform.entity.appUser.AppUserRecord">
+		select t2.nick_name as nickName,
+		t1.id,
+		t1.user_id as userId,
+		t1.study_day_num as studyDayNum,
+		t1.finish_course_hour as finishCourseHour,
+		t1.score as score,
+		t1.points as points,
+		DATE_FORMAT(t1.modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTime
+		 from app_user_record t1 left join app_user  t2 on t1.user_id=t2.id 
+		 where 1=1 
+	<if test="nickName != null and nickName != ''">
+		and t2.nick_name like concat('%',#{nickName},'%')
+	</if>
+		order by t1.modify_time desc
+	</select>
+	
+	
+</mapper>

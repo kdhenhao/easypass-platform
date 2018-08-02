@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.OrderQueryMapper">
+	<select id="findOrderQuery" resultType="Map">
+	select 	
+	vc.id as id ,
+	vc.order_no as orderNo,
+	oc.price as price,	
+	case when oc.payway='0' then '微信支付'
+	     when oc.payway='1' then '支付宝支付'
+	     when oc.payway='2' then 'PayPal支付'
+	     when oc.payway='3' then '苹果支付'
+	     else '其他' end as payWay,
+  	date_format(vc.create_time,'%Y-%m-%d %h:%m:%s')as createTime
+  	from order_course_detail vc  
+  	inner join order_course oc 
+  	on oc.order_status = 1 
+  	and oc.order_no =vc.order_no 
+   <where>
+    <if test="orderNo != null and orderNo != ''">
+     vc.order_no = #{orderNo}
+    </if> 
+    <if test="startTime != null and startTime != ''">
+			and date_format(vc.create_time,'%Y-%m-%d') >= #{startTime} 
+	</if>
+	<if test="endTime != null and endTime != ''">
+			and #{endTime} >= date_format(vc.create_time,'%Y-%m-%d')
+			
+	</if>
+   </where>
+     group by vc.order_no  
+	</select>
+	<select id="findTotalPrice" resultType="BigDecimal" parameterType="map">
+	
+	SELECT sum(oc.price) as toatalPrice  
+	FROM order_course oc 
+	WHERE  order_status=1 
+	and order_no in
+    (select vc.order_no as orderNo	from order_course_detail vc  
+  	INNER join order_course o 
+  	on o.order_status = 1 
+  	and o.order_no =vc.order_no 
+   <where>
+    <if test="orderNo != null and orderNo != ''">
+     vc.order_no = #{orderNo}
+    </if> 
+     <if test="startTime != null and startTime != ''">
+		and date_format(vc.create_time,'%Y-%m-%d') >= #{startTime} 
+	</if>
+	<if test="endTime != null and endTime != ''">
+		and #{endTime} >= date_format(vc.create_time,'%Y-%m-%d')
+	</if>
+   </where>
+   group by vc.order_no)
+	</select>	
+</mapper>

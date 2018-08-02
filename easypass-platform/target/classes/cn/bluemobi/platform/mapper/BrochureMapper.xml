@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.BrochureMapper" >
+	
+	<select id="findBrochures" resultType="Map">
+		select 
+		tb.`ID`  as id,
+		tb.`TITLE` as title,
+		tb.`CONTENT` as content,
+		date_format(tb.`MODIFY_TM`,'%Y-%m-%d %H:%i:%s') as modifyTm,
+		su.full_name as modifyBy
+		from tools_brochure tb
+		left join system_user su on tb.`MODIFY_BY` = su.id
+		order by tb.id desc
+	</select>
+	
+	<select id="findBrochureById" resultType="Brochure">
+		select 
+	 	tb.`ID`  as id,
+     	tb.`TITLE` as title,
+     	tb.`CONTENT` as content,
+     	date_format(tb.`MODIFY_TM`,'%Y-%m-%d %H:%i:%s') as modifyTm,
+     	su.full_name as modifyBy
+     	from tools_brochure tb
+     	left join system_user su on tb.`MODIFY_BY` = su.id
+     	where tb.id = #{0}
+	</select>
+	
+	<update id="updateBrochure" parameterType="Brochure">
+		update tools_brochure set 
+		content = #{content},
+		modify_by = ${modifyBy},
+		modify_tm = str_to_date(#{modifyTm},'%Y-%m-%d %H:%i:%s')
+		where id = #{id}
+	</update>
+	
+	<select id="findBrochureByTitle" resultType="Brochure">
+		select 
+	 	tb.`ID`  as id,
+     	tb.`TITLE` as title,
+     	tb.`CONTENT` as content,
+     	date_format(tb.`MODIFY_TM`,'%Y-%m-%d %H:%i:%s') as modifyTm,
+     	su.full_name as modifyBy
+     	from tools_brochure tb
+     	left join system_user su on tb.`MODIFY_BY` = su.id
+     	where tb.title = #{0}
+	</select>
+</mapper>

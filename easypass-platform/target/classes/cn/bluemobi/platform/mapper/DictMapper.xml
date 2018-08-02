@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.DictMapper" >
+
+	<select id="findByName" resultType="String">
+	select dict_value from tools_dict where dict_name = #{0}
+	</select>
+	
+	<update id="updateByName">
+	update tools_dict set dict_value = #{0} where dict_name = #{1}
+	</update>
+</mapper>

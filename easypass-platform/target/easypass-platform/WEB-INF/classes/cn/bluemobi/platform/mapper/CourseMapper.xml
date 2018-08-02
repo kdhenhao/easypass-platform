@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.CourseMapper" >
+
+	<!-- 课程 -->
+	<select id="getCourseList" parameterType="Map" resultType="cn.bluemobi.platform.vo.CourseVO">
+		SELECT 	t1.id, 
+			t1.classify_id, 
+			(SELECT GROUP_CONCAT(NAME) FROM course_classify WHERE FIND_IN_SET(id,t1.classify_id)) AS classifyName,
+			t1.name as courseName, 
+			t1.credit, 
+			t1.difficulty, 
+			t1.class_hour, 
+			t1.for_crowd as forCrowd,
+			t1.study_goal as studyGoal,
+			t1.detail, 
+			t1.price, 
+			t1.price_ios as priceIos, 
+			t1.points, 
+			t1.apple_product_id as appleProductId,
+			t1.on_tax, 
+			t1.campus_id as campusId, 
+			t1.video, 
+			t1.teacher, 
+			t1.average_marks, 
+			t1.photo, 
+			t1.collect, 
+			CASE t1.grade WHEN 1 THEN '大学一年级' WHEN 2 THEN '大学二年级' WHEN 3 THEN '大学三年级' WHEN 4 THEN '大学四年级' END AS gradeName, 
+			CASE t1.term WHEN 0 THEN 'Summer' WHEN 1 THEN 'Fall' WHEN 2 THEN 'Winter' END as termName, 
+			CASE t1.tag WHEN 0 THEN '视频课程' WHEN 1 THEN '预约课程' WHEN 2 THEN '学习小组' END as tagName,
+			t1.tag,
+			DATE_FORMAT(t1.create_time,'%Y-%m-%d %h:%m:%s') AS createTime, 
+			DATE_FORMAT(t1.modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTime,
+			t1.sort, 
+			t2.name as campusName
+			 
+			FROM course t1 
+ 			LEFT JOIN app_campus t2 ON t1.campus_id=t2.id 
+			where 1=1 
+	<if test="courseName != null and courseName != ''">
+		<![CDATA[ and t1.name like concat('%',#{courseName},'%') ]]> 
+	</if> 
+	<if test="campusName != null and campusName != ''">
+		<![CDATA[ and t2.name like concat('%',#{campusName},'%') ]]> 
+	</if>
+	<if test="classifyId != null and classifyId != ''">
+		<![CDATA[ and FIND_IN_SET(#{classifyId},t1.classify_id) ]]> 
+	</if> 
+	<if test="teacher != null and teacher != ''">
+		<![CDATA[ and t1.teacher=#{teacher} ]]> 
+	</if> 
+	<if test="grade != null">
+		<![CDATA[ and t1.grade=#{grade} ]]> 
+	</if> 
+	<if test="term != null">
+		<![CDATA[ and t1.term=#{term} ]]> 
+	</if> 
+	<if test="tag != null">
+		<![CDATA[ and t1.tag=#{tag} ]]> 
+	</if> 
+	<if test="beginTime != null and beginTime != ''">
+		<![CDATA[ and date_format(t1.create_time,'%Y-%m-%d') >= #{beginTime} ]]> 
+	</if>
+	<if test="endTime != null and endTime != ''">
+		<![CDATA[ and date_format(t1.create_time,'%Y-%m-%d') <= #{endTime} ]]> 
+	</if>
+		order by t1.sort asc 
+	</select>
+	
+	<select id="getCourseById" resultType="Course"  parameterType="Long">
+	SELECT 	id, 
+			classify_id as classifyId, 
+			NAME as courseName, 
+			credit, 
+			difficulty, 
+			class_hour as classHour, 
+			for_crowd as forCrowd,
+			study_goal as studyGoal,
+			detail as courseDetail, 
+			price, 
+			price_ios as priceIos,
+			points, 
+			apple_product_id as appleProductId,
+			on_tax as onTax,
+			video, 
+			video_http_url as videoHttpUrl,
+			teacher, 
+			average_marks as averageMarks, 
+			photo, 
+			collect, 
+			grade, 
+			term, 
+			tag,
+			content_difficulty as contentDifficulty,
+			coursework_difficulty as courseworkDifficulty,
+			exam_difficulty as examDifficulty,
+			overall_difficulty as overallDifficulty,
+			prof1,
+			prof1_difficulty as prof1Difficulty,
+			prof2,
+			prof2_difficulty as prof2Difficulty,
+			display,
+			offset, 
+			campus_id as campusId, 
+			create_time as createTime, 
+			modify_time as modifyTime,
+			sort,
+			cover_img as coverImg
+		 
+		FROM course where id = #{0}
+		
+	</select>
+	
+	<insert id="addCourse" parameterType="Course" >
+		INSERT INTO course 
+			(classify_id, 
+			NAME, 
+			credit, 
+			difficulty, 
+			class_hour, 
+			for_crowd,
+			study_goal,
+			detail, 
+			price, 
+			price_ios, 
+			points, 
+			on_tax, 
+			video, 
+			video_http_url,
+			teacher, 
+			average_marks, 
+			photo, 
+			collect, 
+			grade, 
+			term, 
+			tag,
+			content_difficulty,
+			coursework_difficulty,
+			exam_difficulty,
+			overall_difficulty,
+			prof1,
+			prof1_difficulty,
+			prof2,
+			prof2_difficulty,
+			display,
+			offset, 
+			campus_id, 
+			create_time, 
+			modify_time,
+			apple_product_id,
+			sort,
+			cover_img
+			)
+			VALUES
+			(
+			#{classifyId}, 
+			#{courseName}, 
+			#{credit}, 
+			#{difficulty}, 
+			#{classHour}, 
+			#{forCrowd}, 
+			#{studyGoal}, 
+			#{courseDetail}, 
+			#{price}, 
+			#{priceIos}, 
+			#{points}, 
+			#{onTax}, 
+			#{video}, 
+			#{videoHttpUrl}, 
+			#{teacher}, 
+			#{averageMarks}, 
+			#{photo}, 
+			#{collectNum}, 
+			#{grade}, 
+			#{term}, 
+			#{tag},
+			#{contentDifficulty},
+			#{courseworkDifficulty},
+			#{examDifficulty},
+			#{overallDifficulty},
+			#{prof1},
+			#{prof1Difficulty},
+			#{prof2},
+			#{prof2Difficulty},
+			#{display},
+			#{offset}, 
+			#{campusId}, 
+			now(), 
+			now(),
+			#{appleProductId},
+			#{sort},
+			#{coverImg}
+			)
+		
+	</insert>
+	
+	<update id="updateCourse" parameterType="Course">
+		UPDATE course 
+			SET
+			classify_id = #{classifyId}, 
+			NAME = #{courseName}, 
+			credit = #{credit}, 
+			difficulty = #{difficulty}, 
+			class_hour = #{classHour}, 
+			for_crowd = #{forCrowd}, 
+			study_goal = #{studyGoal}, 
+			detail = #{courseDetail}, 
+			price = #{price}, 
+			price_ios = #{priceIos}, 
+			points = #{points}, 
+			on_tax = #{onTax}, 
+			video = #{video}, 
+			video_http_url = #{videoHttpUrl}, 
+			teacher = #{teacher}, 
+			average_marks = #{averageMarks}, 
+			photo = #{photo}, 
+			grade = #{grade}, 
+			term = #{term}, 
+			tag = #{tag},
+			content_difficulty = #{contentDifficulty},
+			coursework_difficulty = #{courseworkDifficulty},
+			exam_difficulty = #{examDifficulty},
+			overall_difficulty = #{overallDifficulty},
+			prof1 = #{prof1},
+			prof1_difficulty = #{prof1Difficulty},
+			prof2 = #{prof2},
+			prof2_difficulty = #{prof2Difficulty},
+			display = #{display},
+			offset = #{offset}, 
+			campus_id = #{campusId}, 
+			modify_time = now(),
+			apple_product_id=#{appleProductId},
+			sort=#{sort},
+			cover_img=#{coverImg}
+			
+			WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteCourseById" parameterType="Long">
+		DELETE  FROM course WHERE id = #{0}
+	</delete>
+	
+	<delete id="deleteCourseHourByCourseId" parameterType="Long">
+		DELETE  FROM course_class_hour WHERE course_id = #{0}
+	</delete>
+	
+	<!-- 课时列表 -->
+	<select id="getCourseClassHourList" parameterType="Map" resultType="cn.bluemobi.platform.vo.CourseClassHourVO">
+		SELECT 	id, 
+			course_id as courseId, 
+			NAME as classHourName, 
+			lesson_period as lessonPeriod, 
+			content, 
+			price, 
+			price_ios as priceIos, 
+			points, 
+			on_tax as onTax,
+			video, 
+			apple_product_id as appleProductId,
+			video_http_url as videoHttpUrl, 
+			DATE_FORMAT(create_time,'%Y-%m-%d %h:%m:%s') AS createTime, 
+			DATE_FORMAT(modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTime,
+			sort 
+			 
+			FROM course_class_hour where 1=1 
+	<if test="classHourName != null and classHourName != ''">
+		<![CDATA[ and name like concat('%',#{classHourName},'%') ]]> 
+	</if> 
+	<if test="courseId != null and courseId != ''">
+		<![CDATA[ and course_id=#{courseId} ]]> 
+	</if> 
+		order by sort asc 
+	</select>
+	
+	<select id="getCourseClassHourById" resultType="CourseClassHour"  parameterType="Long">
+		SELECT 	id, 
+			course_id as courseId, 
+			NAME as classHourName, 
+			lesson_period as lessonPeriod, 
+			apple_product_id as appleProductId,
+			content, 
+			price, 
+			price_ios as priceIos,
+			points, 
+			on_tax as onTax,
+			video, 
+			video_http_url as videoHttpUrl,
+			click_num as clickNum,
+			purchase_num as purchaseNum,
+			click_num_real as clickNumReal,
+			purchase_num_real as purchaseNumReal,
+			DATE_FORMAT(create_time,'%Y-%m-%d %h:%m:%s') AS createTime, 
+			DATE_FORMAT(modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTime,
+			sort
+			 
+			FROM course_class_hour where id = #{0}
+	</select>
+	
+	<insert id="addCourseClassHour" parameterType="CourseClassHour" >
+		INSERT INTO course_class_hour 
+			(course_id, 
+			NAME, 
+			lesson_period, 
+			content, 
+			price, 
+			price_ios, 
+			points, 
+			video, 
+			video_http_url,
+			click_num,
+			purchase_num,
+			click_num_real,
+			purchase_num_real,
+			create_time, 
+			modify_time,
+			apple_product_id,
+			on_tax,
+			sort
+			)
+			VALUES
+			(#{courseId}, 
+			#{classHourName}, 
+			#{lessonPeriod}, 
+			#{content}, 
+			#{price}, 
+			#{priceIos}, 
+			#{points}, 
+			#{video}, 
+			#{videoHttpUrl},
+			#{clickNum},
+			#{purchaseNum},
+			#{clickNumReal},
+			#{purchaseNumReal},
+			now(), 
+			now(),
+			#{appleProductId},
+			#{onTax},
+			#{sort}
+			);
+	
+	</insert>
+	
+	<update id="updateCourseMoifyTime" parameterType="int">
+		UPDATE course SET modify_time=NOW() WHERE id=#{0}
+	</update>
+	
+	<update id="updateCourseClassHour" parameterType="CourseClassHour">
+		UPDATE course_class_hour 
+			SET
+			NAME=#{classHourName}, 
+			lesson_period=#{lessonPeriod}, 
+			content=#{content}, 
+			price= #{price},
+			price_ios= #{priceIos}, 
+			points = #{points}, 
+			video=#{video},  
+			video_http_url=#{videoHttpUrl},
+			click_num=#{clickNum},
+			purchase_num=#{purchaseNum},
+			click_num_real=#{clickNumReal},
+			purchase_num_real=#{purchaseNumReal},
+			modify_time = now(),
+			apple_product_id=#{appleProductId},
+			on_tax=#{onTax},
+			sort=#{sort}
+			
+			WHERE
+			id = #{id}
+	</update>
+	
+	<delete id="deleteCourseClassHourById" parameterType="Long">
+		DELETE  FROM course_class_hour WHERE id = #{0}
+	</delete>
+	
+	<select id="getAllCourseList" resultType="Course">
+		SELECT id,NAME AS courseName FROM course WHERE STATUS=0
+	</select>
+</mapper>

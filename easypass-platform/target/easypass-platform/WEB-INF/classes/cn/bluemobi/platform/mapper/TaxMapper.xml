@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.TaxMapper">
+	<select id="findTaxs" resultType="Map">
+	select 
+    id ,
+    tax_no taxNo,
+    tax_name taxName,
+    tax_unit taxUnit,
+    tax_unit_code as taxUnitCode,
+    tax_price as taxPrice,
+    tax_percent as taxPercent,
+    `level`,
+    status
+    from tax_number
+    where 1=1 
+    <if test="taxNo != null and taxNo != ''">
+    and tax_no like concat(#{taxNo},'%')
+    </if>
+    <if test="taxName != null and taxName != ''">
+    and tax_name like concat('%',#{taxName},'%')
+    </if>
+    <if test="level != null">
+    and `level` = #{level}
+    </if>
+    order by tax_no
+	</select>
+	
+	<update id="lockById">
+	update tax_number set status = '1',modify_by = #{1},modify_tm = now() where id = #{0}
+	</update>
+	
+	<update id="unLockById">
+	update tax_number set status = '0',modify_by = #{1},modify_tm = now() where id = #{0}
+	</update>
+	
+	<select id="hasCode" resultType="int">
+	select count(1) from tax_number where tax_no = #{0}
+	</select>
+	<select id="hasCode2" resultType="int">
+	select count(1) from tax_number where tax_no = #{0} and id &lt;&gt; #{1}
+	</select>
+	
+	<insert id="insert">
+	insert into tax_number
+(
+   tax_no ,
+   tax_name ,
+   tax_unit ,
+   tax_unit_code,
+   tax_price ,
+   tax_percent ,
+   create_by ,
+   create_tm ,
+   level ) values (
+   #{taxNo,jdbcType=VARCHAR},
+   #{taxName,jdbcType=VARCHAR},
+   #{taxUnit,jdbcType=VARCHAR},
+   #{taxUnitCode,jdbcType=VARCHAR},
+   #{taxPrice,jdbcType=VARCHAR},
+   #{taxPercent,jdbcType=VARCHAR},
+   #{createBy},
+   now(),
+   level
+   )
+	</insert>
+	
+	<update id="update">
+	update tax_number set 
+	 tax_no = #{taxNo,jdbcType=VARCHAR},
+   tax_name = #{taxName,jdbcType=VARCHAR},
+   tax_unit = #{taxUnit,jdbcType=VARCHAR},
+   tax_unit_code = #{taxUnitCode,jdbcType=VARCHAR},
+   tax_price = #{taxPrice,jdbcType=VARCHAR},
+   tax_percent = #{taxPercent,jdbcType=VARCHAR},
+   modify_by = #{modifyBy},
+   modify_tm  = now()
+   where id = #{id}
+	</update>
+	
+	<select id="findTaxForSelect" resultType="Tax">
+	select 
+    id ,
+    tax_no taxNo,
+    tax_name taxName,
+    tax_unit taxUnit,
+    tax_unit_code as taxUnitCode,
+    tax_price as taxPrice,
+    tax_percent as taxPercent,
+    `level`,
+    status
+    from tax_number
+    where status = '0' 
+    order by tax_no
+	</select>
+</mapper>

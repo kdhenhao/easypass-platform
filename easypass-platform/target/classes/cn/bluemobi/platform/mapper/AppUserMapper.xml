@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.AppUserMapper" >
+	<select id="getAppUserList" parameterType="Map" resultType="cn.bluemobi.platform.vo.AppUserVO">
+		SELECT 	t1.id, 
+			t1.user_name AS userName, 
+			t1.password, 
+			t1.login_type AS loginType, 
+			t1.sex,
+<!-- 			CASE t1.sex WHEN 0 THEN '未知' WHEN 1 THEN '男' WHEN 2 THEN '女' END AS sexStr,  -->
+			t1.major, 
+			t1.phone, 
+			t1.email, 
+			t1.head_img AS headImg, 
+			DATE_FORMAT(t1.create_time,'%Y-%m-%d %h:%m:%s') AS createTime, 
+			DATE_FORMAT(t1.modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTime,
+			t1.status  
+			 
+			FROM app_user t1 
+	 		where 1=1
+	<if test="userName != null and userName != ''">
+		and t1.user_name like concat('%',#{userName},'%')
+	</if>
+	<if test="major != null and major != ''">
+		and t1.major = #{major}
+	</if>
+	<if test="email != null and email != ''">
+		and t1.email like concat('%',#{email},'%')
+	</if>
+	<if test="sex != null">
+		and t1.sex = #{sex}
+	</if>
+	<if test="status != null">
+		and t1.status = #{status}
+	</if>
+	<if test="beginTime != null and beginTime != ''">
+		<![CDATA[ and date_format(t1.create_time,'%Y-%m-%d') >= #{beginTime} ]]> 
+	</if>
+	<if test="endTime != null and endTime != ''">
+		<![CDATA[ and t1.date_format(t1.create_time,'%Y-%m-%d') <= #{endTime} ]]> 
+	</if>
+		order by t1.create_time desc
+	</select>
+	
+	<insert id="addAppUser" parameterType="AppUser" >
+		INSERT INTO app_user 
+			(user_name, 
+			PASSWORD, 
+			login_type, 
+			sex, 
+			major, 
+			phone, 
+			email, 
+			head_img, 
+			create_time, 
+			modify_time, 
+			STATUS
+			)
+			VALUES
+			(#{userName},
+			#{password}, 
+			null, 
+			#{sex}, 
+			#{major}, 
+			#{phone}, 
+			#{email}, 
+			#{headImg}, 
+			now(), 
+			now(), 
+			#{status}
+			);
+	</insert>
+	
+	<update id="updateAppUser" parameterType="AppUser">
+		UPDATE app_user 
+			SET
+			user_name = #{userName} , 
+			PASSWORD = #{password} , 
+			sex = #{sex} , 
+			major = #{major} , 
+			phone = #{phone} , 
+			email = #{email} , 
+			head_img = #{headImg} , 
+			modify_time = now() , 
+			STATUS = #{status}
+			
+			WHERE
+			id = #{id} ;
+	</update>
+	
+	<update id="enableAppUser" parameterType="Map" >
+		UPDATE app_user set `status` = 0 WHERE id = #{0}
+	</update>
+	
+	<update id="disableAppUser" parameterType="Map" >
+		UPDATE app_user set `status` = 1 WHERE id = #{0}
+	</update>
+	
+	<update id="resetAppUserPassword" parameterType="Map" >
+		UPDATE app_user SET `password` = #{password} where  id = #{id}
+	</update>
+</mapper>

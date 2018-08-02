@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.ClearNoMapper">
+	<select id="findClearNos" resultType="Map">
+	select 
+	cn.clear_no clearNo,
+    cn.clear_company clearCompany,
+    <!-- date_format(cn.get_tm,'%Y-%m-%d %H:%i:%s') as getTm,-->
+    date_format(cn.import_tm,'%Y-%m-%d %H:%i:%s') as importTm, 
+    date_format(cn.allocate_tm,'%Y-%m-%d %H:%i:%s') as allocateTm,
+    cn.status,
+    om.order_no as orderNo
+    from clear_no cn
+    left join order_main om on om.clear_no = cn.clear_no
+    where 1=1
+    <if test="orderNo != null and orderNo != ''">
+    and om.order_no like concat('%',#{orderNo},'%')
+    </if>
+    <if test="clearNo != null and clearNo != ''">
+    and cn.clear_no like concat('%',#{clearNo},'%')
+    </if>
+    <if test="status != null and status != ''">
+    and cn.status = #{status}
+    </if>
+    order by cn.clear_no
+	</select>
+	
+	<insert id="insert">
+	insert into clear_no (
+	clear_no ,
+    clear_company,
+    get_tm ,
+    import_tm     
+	) values (
+	#{clearNo},
+	#{clearCompany,jdbcType=VARCHAR},
+	str_to_date(#{time,jdbcType=VARCHAR},'%Y-%m-%d %H:%i:%s'),
+	now()
+	)
+	</insert>
+	
+	<select id="exist" resultType="int">
+	select count(1) from clear_no cn where cn.clear_no = #{clearNo} 
+	</select>
+	
+	<select id="countNotUsed" resultType="int">
+	select count(1) from clear_no cn where cn.status = '0'
+	</select>
+	<select id="findNotUsed100" resultType="String">
+	select cn.clear_no from clear_no cn where cn.status = '0' order by cn.clear_no limit 0,100
+	</select>
+	
+	<select id="findOrdersNotAllocated" resultType="Long">
+	select om.id from order_main om where om.clear_no is null and om.pallet_id = #{0}
+	</select>
+	
+	<update id="allocate">
+	update order_main set 
+	clear_no = #{0}
+	where 
+	id = #{1}
+	</update>
+	
+	<update id="markAllocated">
+	update clear_no cn set
+	cn.status = '1',
+	cn.allocate_tm = now()
+	where cn.clear_no = #{0}
+	</update>
+</mapper>

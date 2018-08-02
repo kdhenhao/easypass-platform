@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.CampusNewsMapper">
+	<select id="findNews" resultType="CampusNews">
+		SELECT t1.id,
+		t2.id as campusId, 
+		t1.url as campusUrl, 
+		DATE_FORMAT(t1.create_time,'%Y-%m-%d %h:%m:%s') AS createTm, 
+		DATE_FORMAT(t1.modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTm, 
+		t2.name as campusName
+		FROM news t1 RIGHT JOIN app_campus t2 ON t1.campus_id=t2.id 
+		where 1=1 
+		order by t1.id
+	</select>
+
+	<!-- 添加 -->
+	<insert id="addNews" parameterType="CampusNews">
+		INSERT INTO news (
+		campus_id,
+		url,
+		create_time
+		)
+		VALUES
+		(#{campusId},
+		#{campusUrl}, 
+		now()
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="updateNews" parameterType="CampusNews">
+		update news set
+		url = #{campusUrl},
+		modify_time = now() 
+		where campus_id = #{campusId}
+	</update>
+
+</mapper>

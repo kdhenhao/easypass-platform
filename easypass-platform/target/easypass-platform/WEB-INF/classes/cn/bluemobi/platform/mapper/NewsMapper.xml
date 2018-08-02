@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.NewsMapper">
+
+	<select id="findNews" resultType="Map">
+	select 
+	tb.`ID`  as id,
+	tb.`TITLE` as title,
+	tb.`CONTENT` as content,
+	date_format(tb.`create_tm`,'%Y-%m-%d %H:%i:%s') as createTm,
+	date_format(tb.`MODIFY_TM`,'%Y-%m-%d %H:%i:%s') as modifyTm,
+	su.full_name as modifyBy,
+	tb.is_publish as isPublish,
+	date_format(tb.publish_tm,'%Y-%m-%d %H:%i:%s') as publishTm,
+	su2.full_name as publishBy
+	from tools_news tb
+	left join system_user su on tb.`MODIFY_BY` = su.id
+	left join system_user su2 on tb.publish_by = su2.id
+	order by tb.is_publish,tb.publish_tm desc
+	</select>
+	
+	<insert id="insertNews">
+	insert into tools_news (title,content,create_tm,create_by,is_publish) values (#{0},#{1},now(),#{2},'0')
+	</insert>
+	
+	<update id="updateNews">
+	update tools_news set 
+	title = #{0},
+	content = #{1},
+	modify_tm = now(),
+	modify_by = #{2}
+	where id = #{3}
+	</update>
+	
+	<insert id="insertNews2">
+	insert into tools_news (title,content,create_tm,create_by,is_publish,publish_tm,publish_by) values (#{0},#{1},now(),#{2},'1',now(),#{2})
+	</insert>
+	
+	<update id="updateNews2">
+	update tools_news set 
+	title = #{0},
+	content = #{1},
+	modify_tm = now(),
+	modify_by = #{2},
+	is_publish = '1',
+	publish_tm = now(),
+	publish_by = #{2}
+	where id = #{3}
+	</update>
+	<update id="deleteById">
+	delete from tools_news where id = #{0}
+	</update>
+	<update id="publishById">
+	update tools_news set is_publish = '1',publish_by = #{1},publish_tm = now() where id = #{0}
+	</update>
+	
+	<select id="findById" resultType="Map">
+	select 
+	tb.`ID`  as id,
+	tb.`TITLE` as title,
+	tb.`CONTENT` as content,
+	date_format(tb.`create_tm`,'%Y-%m-%d %H:%i:%s') as createTm,
+	date_format(tb.`MODIFY_TM`,'%Y-%m-%d %H:%i:%s') as modifyTm,
+	tb.is_publish as isPublish,
+	date_format(tb.publish_tm,'%Y-%m-%d %H:%i:%s') as publishTm
+	from tools_news tb
+	where id = #{0}
+	</select>
+</mapper>

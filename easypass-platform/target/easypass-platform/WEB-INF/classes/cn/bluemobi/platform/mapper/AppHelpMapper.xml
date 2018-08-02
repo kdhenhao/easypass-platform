@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.AppHelpMapper" >
+    <select id="findHelpList"  resultType="AppHelp" parameterType="map">
+    	SELECT 	id, 
+			help_header as helpHeader, 
+			help_seq as helpSeq, 
+			solution,
+			DATE_FORMAT(create_time,'%Y-%m-%d %h:%m:%s') AS createTm
+			 
+			FROM app_help where 1=1 
+	<if test="helpHeader != null and helpHeader != ''">
+		and help_header like concat('%',#{helpHeader},'%')
+	</if> 
+    	order by help_seq
+    </select>
+    
+    <!-- 添加 -->
+    <insert id="insertHelp" parameterType="AppHelp">
+    	INSERT INTO app_help (
+			help_header, 
+			help_seq,
+			solution, 
+			create_time
+			)
+			VALUES
+			(#{helpHeader}, 
+			#{helpSeq},
+			#{solution}, 
+			now()
+			)
+    </insert>
+    <!-- 修改 -->
+    <update id="updedateHelp">
+    	update app_help set
+    		help_header = #{helpHeader}, 
+			help_seq = #{helpSeq},
+			solution = #{solution}
+		where id = #{id}
+			
+    </update>
+    <!-- 删除 -->
+	<delete id="deleteHelpById">
+		DELETE FROM app_help WHERE id = #{id}
+	</delete>
+
+</mapper>

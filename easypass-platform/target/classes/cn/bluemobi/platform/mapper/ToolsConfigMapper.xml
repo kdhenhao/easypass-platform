@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.ToolsConfigMapper" >
+	<select id="getToolsConfigList" resultType="ToolsConfig" parameterType="map">
+		SELECT
+		tb.ID as id,
+		tb.name as name,
+		syu.USERNAME as userName,
+		tb.config_type as configType,
+		date_format(tb.MODIFY_time,'%Y-%m-%d %H:%i:%s')as modifyTime
+		FROM
+		tools_config as tb
+		LEFT JOIN system_user as syu ON tb.MODIFY_BY = syu.ID
+	</select>
+	
+	<select id="findConfigById" resultType="ToolsConfig">
+		SELECT
+		tb.ID as id,
+		tb.name as name,
+		tb.config_TYPE as type,
+		tb.CONTENT as content,
+		date_format(tb.MODIFY_Time,'%Y-%m-%d %H:%i:%s')as modifyTime,
+		tb.MODIFY_BY as modifyBy
+		FROM
+		tools_config as tb
+		where id=#{id}
+	</select>
+	
+	<!-- 编辑 -->
+	<update id="updateConfig" parameterType="ToolsConfig">
+		update tools_config set 
+		content = #{content},
+		modify_by=#{modifyBy},
+		MODIFY_Time =Now()
+		where id = #{id}
+	</update>
+	
+	<!-- 编辑 -->
+	<update id="updateAboutUs" parameterType="cn.bluemobi.platform.entity.toolsConfig.AppAboutUs">
+		UPDATE app_about_us 
+			SET
+			logo_img = #{logoImg}, 
+			telephone = #{telephone} , 
+			description = #{description} , 
+			wechat_public_number = #{wechatPublicNumber} , 
+			email = #{email} , 
+			qr_code_img = #{qrCodeImg}, 
+			modify_time = now()
+			<if test="id==1">
+				WHERE id = 1
+			</if>
+			<if test="id==2">
+				WHERE id = 2
+			</if>
+	</update>
+	
+	<select id="getAboutUs" resultType="cn.bluemobi.platform.entity.toolsConfig.AppAboutUs" parameterType="map">
+		SELECT 	id, 
+		NAME, 
+		logo_img as logoImg, 
+		telephone,
+		description,
+		wechat_public_number as wechatPublicNumber, 
+		email, 
+		qr_code_img as qrCodeImg, 
+		modify_time as modifyTime
+		 
+		FROM app_about_us where 1=1
+		<if test="configType=='aboutUs'">
+			and id=1
+		</if>
+		<if test="configType=='contactUs'">
+			and id=2
+		</if>
+	</select>
+</mapper>

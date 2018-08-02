@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.OrderMapper">
+	<insert id="insertNewOrder" useGeneratedKeys="true" keyProperty="id">
+	insert into order_main
+(
+   order_no ,
+   sender_name ,
+   sender_phone ,
+   sender_province ,
+   sender_city ,
+   sender_district ,
+   sender_address ,
+   receiver_name ,
+   receiver_phone ,
+   receiver_province ,
+   receiver_province_code,
+   receiver_city ,
+   receiver_city_code,
+   receiver_district ,
+   receiver_district_code ,
+   receiver_address ,
+   endpoint_id ,
+   total_weight ,
+   total_price ,
+   pay_method ,
+   create_by ,
+   create_tm
+   ) values (
+   #{orderNo,jdbcType=VARCHAR} ,
+   #{senderName,jdbcType=VARCHAR} ,
+   #{senderPhone,jdbcType=VARCHAR} ,
+   #{senderProvince,jdbcType=VARCHAR} ,
+   #{senderCity,jdbcType=VARCHAR} ,
+   #{senderDistrict,jdbcType=VARCHAR} ,
+   #{senderAddress,jdbcType=VARCHAR} ,
+   #{receiverName,jdbcType=VARCHAR} ,
+   #{receiverPhone,jdbcType=VARCHAR} ,
+   #{receiverProvince,jdbcType=VARCHAR} ,
+   #{receiverProvinceCode,jdbcType=VARCHAR} ,
+   #{receiverCity,jdbcType=VARCHAR} ,
+   #{receiverCityCode,jdbcType=VARCHAR} ,
+   #{receiverDistrict,jdbcType=VARCHAR} ,
+   #{receiverDistrictCode,jdbcType=VARCHAR} ,
+   #{receiverAddress,jdbcType=VARCHAR} ,
+   #{endpointId,jdbcType=BIGINT} ,
+   #{totalWeight,jdbcType=NUMERIC} ,
+   #{totalPrice,jdbcType=DECIMAL} ,
+   #{payMethod,jdbcType=VARCHAR} ,
+   #{createBy},
+   now()
+   )
+	</insert>
+	
+	<insert id="insertOrderCommodity">
+	insert into order_commodity
+(
+   commodity_id ,
+   order_id ,
+   en_name ,
+   cn_name ,
+   brand ,
+   barcode  ,
+   gross_weight  ,
+   net_weight ,
+   unit ,
+   counter,
+   price ,
+   tax_no ,
+   tax_id ,
+   count
+) values (
+   #{id} ,
+   #{orderId} ,
+   #{enName,jdbcType=VARCHAR} ,
+   #{cnName,jdbcType=VARCHAR} ,
+   #{brand,jdbcType=VARCHAR} ,
+   #{barcode,jdbcType=VARCHAR}  ,
+   #{grossWeight,jdbcType=VARCHAR}  ,
+   #{netWeight,jdbcType=VARCHAR} ,
+   #{unit,jdbcType=VARCHAR} ,
+   #{counter,jdbcType=VARCHAR},
+   #{price,jdbcType=VARCHAR} ,
+   #{taxNo,jdbcType=VARCHAR},
+   #{taxId,jdbcType=VARCHAR} ,
+   #{count,jdbcType=NUMERIC}
+)
+	</insert>
+	
+	<select id="findOrders" resultType="Map">
+	select om.id ,
+    om.order_no as orderNo,
+    om.sender_name as senderName,
+    om.sender_phone as senderPhone,
+    om.sender_province as senderProvince,
+    om.sender_city as senderCity,
+    om.sender_district senderDistrict,
+    om.sender_address senderAddress,
+    om.receiver_name as receiverName,
+    om.receiver_phone as receiverPhone,
+    om.receiver_province as receiverProvince,
+    om.receiver_city as receiverCity,
+    om.receiver_district as receiverDistrict,
+    om.receiver_district_code receiverDistrictCode,
+    om.receiver_address as recieverAddress,
+    om.endpoint_id as endpointId,
+    om.total_weight as totalWeight,
+    om.total_price as totalPrice,
+    om.pay_method as payMethod,
+    om.endpoint_pay as endpointPay,
+    om.status,
+    date_format(om.create_tm,'%Y-%m-%d %H:%i:%d') as createTm,
+    ep.point_name as pointName
+    from order_main om
+    left join end_point ep on om.endpoint_id = ep.id
+    where 1= 1
+    <if test="endpointId != null and endpointId != ''">
+    and om.endpoint_id = #{endpointId}
+    </if>
+    <if test="orderNo != null and orderNo != ''">
+    and om.order_no like concat('%',#{orderNo},'%')
+    </if>
+    <if test="createTm != null and createTm != ''">
+    and date_format(om.create_tm,'%Y-%m-%d') = #{createTm} 
+    </if>
+    <if test="endpointPay != null and endpointPay != ''">
+    and om.endpoint_pay = #{endpointPay}
+    </if>
+    order by om.endpoint_pay,om.id desc
+	</select>
+	
+	<update id="markPaied">
+	update order_main set endpoint_pay = '1',modify_tm = now(),modify_by = #{modifyBy}
+	where id in 
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach> 
+	</update>
+	
+	<update id="markUnPaied">
+	update order_main set endpoint_pay = '0',modify_tm = now(),modify_by = #{modifyBy}
+	where id in 
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach> 
+	</update>
+	
+	<update id="updateOrderPic">
+	update order_main set 
+	has_pic = '1',
+	idcard_no = #{0,jdbcType=VARCHAR},
+    fontside_pic = #{1,jdbcType=VARCHAR},
+    backside_pic = #{2,jdbcType=VARCHAR},
+    mergeside_pic = #{3,jdbcType=VARCHAR},
+    upload_tm = now()
+    where id = #{4}
+	</update>
+	
+	<select id="findById" resultType="OrderMain">
+	select om.id ,
+    om.order_no as orderNo,
+    om.sender_name as senderName,
+    om.sender_phone as senderPhone,
+    om.sender_province as senderProvince,
+    om.sender_city as senderCity,
+    om.sender_district senderDistrict,
+    om.sender_address senderAddress,
+    om.receiver_name as receiverName,
+    om.receiver_phone as receiverPhone,
+    om.receiver_province as receiverProvince,
+    om.receiver_province_code as receiverProvinceCode,
+    om.receiver_city as receiverCity,
+    om.receiver_city_code as receiverCityCode,
+    om.receiver_district as receiverDistrict,
+    om.receiver_district_code receiverDistrictCode,
+    om.receiver_address as receiverAddress,
+    om.endpoint_id as endpointId,
+    om.total_weight as totalWeight,
+    om.total_price as totalPrice,
+    om.pay_method as payMethod,
+    om.endpoint_pay as endpointPay,
+    om.status,
+    date_format(om.create_tm,'%Y-%m-%d %H:%i:%d') as createTm,
+    ep.point_name as pointName,
+    om.has_pic as hasPic,
+    om.idcard_no as idcardNo,
+    om.fontside_pic as fontsidePic,
+    om.backside_pic as backsidePic,
+    om.pallet_id as palletId
+    from order_main om
+    left join end_point ep on om.endpoint_id = ep.id
+    where om.id = #{0}
+	</select>
+	
+	<select id="findCommoditiesByOrderId" resultType="Map">
+	select id,
+    commodity_id as commodityId,
+    order_id as orderId,
+    en_name as enName,
+    cn_name as cnName,
+    brand as brand,
+    barcode as barcode,
+    gross_weight as grossWeight,
+    net_weight as netWeight,
+    unit as unit,
+    counter,
+    price,
+    tax_no as taxNo,
+    tax_id as taxId,
+    `count`
+	from order_commodity
+	where order_id = #{0}
+	</select>
+	
+	<update id="updateById">
+	update order_main set
+    order_no = #{orderNo,jdbcType=VARCHAR} ,
+    sender_name = #{senderName,jdbcType=VARCHAR} , 
+    sender_phone = #{senderPhone,jdbcType=VARCHAR} ,
+    sender_province = #{senderProvince,jdbcType=VARCHAR} ,
+    sender_city = #{senderCity,jdbcType=VARCHAR} ,
+    sender_district = #{senderDistrict,jdbcType=VARCHAR} ,
+    sender_address = #{senderAddress,jdbcType=VARCHAR} ,
+    receiver_name = #{receiverName,jdbcType=VARCHAR} ,
+    receiver_phone = #{receiverPhone,jdbcType=VARCHAR} ,
+    receiver_province = #{receiverProvince,jdbcType=VARCHAR} ,
+    receiver_province_code = #{receiverProvinceCode,jdbcType=VARCHAR} ,
+    receiver_city = #{receiverCity,jdbcType=VARCHAR} ,
+    receiver_city_code = #{receiverCityCode,jdbcType=VARCHAR} ,
+    receiver_district = #{receiverDistrict,jdbcType=VARCHAR} ,
+    receiver_district_code = #{receiverDistrictCode,jdbcType=VARCHAR} ,
+    receiver_address = #{receiverAddress,jdbcType=VARCHAR} ,
+    endpoint_id = #{endpointId,jdbcType=BIGINT} ,
+    total_weight = #{totalWeight,jdbcType=NUMERIC} ,
+    total_price = #{totalPrice,jdbcType=DECIMAL} ,
+    pay_method = #{payMethod,jdbcType=VARCHAR} ,
+    modify_by = #{modifyBy},
+    modify_tm = now()
+    where id = #{id}
+	</update>
+	
+	<update id="deleteCommodity">
+	delete from order_commodity
+	where order_id = #{orderId} and id not in 
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach> 
+	</update>
+	
+	<update id="updateCommodityCount">
+	update order_commodity set `count` = #{0} where id = #{1}
+	</update>
+	
+	<select id="findByOrderNo" resultType="OrderMain">
+	select om.id ,
+    om.order_no as orderNo,
+    om.sender_name as senderName,
+    om.sender_phone as senderPhone,
+    om.sender_province as senderProvince,
+    om.sender_city as senderCity,
+    om.sender_district senderDistrict,
+    om.sender_address senderAddress,
+    om.receiver_name as receiverName,
+    om.receiver_phone as receiverPhone,
+    om.receiver_province as receiverProvince,
+    om.receiver_province_code as receiverProvinceCode,
+    om.receiver_city as receiverCity,
+    om.receiver_city_code as receiverCityCode,
+    om.receiver_district as receiverDistrict,
+    om.receiver_district_code receiverDistrictCode,
+    om.receiver_address as receiverAddress,
+    om.endpoint_id as endpointId,
+    om.total_weight as totalWeight,
+    om.total_price as totalPrice,
+    om.pay_method as payMethod,
+    om.endpoint_pay as endpointPay,
+    om.status,
+    date_format(om.create_tm,'%Y-%m-%d %H:%i:%d') as createTm,
+    ep.point_name as pointName,
+    om.has_pic as hasPic,
+    om.idcard_no as idcardNo,
+    om.fontside_pic as fontsidePic,
+    om.backside_pic as backsidePic,
+    p.pallet_name as palletName
+    from order_main om
+    left join end_point ep on om.endpoint_id = ep.id
+    left join pallet p on om.pallet_id = p.id
+    where om.order_no = #{0}
+	</select>
+	
+	<update id="updateWeightById">
+	update order_main set total_weight = #{0},modify_tm = now(),modify_by = #{1} where id = #{2}
+	</update>
+	
+	<select id="findOrdersByPallet" resultType="Map">
+	select om.id ,
+    om.order_no as orderNo,
+    om.sender_name as senderName,
+    om.sender_phone as senderPhone,
+    om.sender_province as senderProvince,
+    om.sender_city as senderCity,
+    om.sender_district senderDistrict,
+    om.sender_address senderAddress,
+    om.receiver_name as receiverName,
+    om.receiver_phone as receiverPhone,
+    om.receiver_province as receiverProvince,
+    om.receiver_province_code as receiverProvinceCode,
+    om.receiver_city as receiverCity,
+    om.receiver_city_code as receiverCityCode,
+    om.receiver_district as receiverDistrict,
+    om.receiver_district_code receiverDistrictCode,
+    om.receiver_address as receiverAddress,
+    om.endpoint_id as endpointId,
+    om.total_weight as totalWeight,
+    om.total_price as totalPrice,
+    om.pay_method as payMethod,
+    om.endpoint_pay as endpointPay,
+    om.status,
+    date_format(om.create_tm,'%Y-%m-%d %H:%i:%d') as createTm,
+    ep.point_name as pointName,
+    om.has_pic as hasPic,
+    om.idcard_no as idcardNo,
+    om.fontside_pic as fontsidePic,
+    om.backside_pic as backsidePic,
+    
+    om.fake_receiver_name as fakeReceiverName,
+    om.fake_receiver_phone as fakeReceiverPhone,
+    om.fake_receiver_province as fakeReceiverProvince,
+    om.fake_receiver_province_code as fakeReceiverProvinceCode,
+    om.fake_receiver_city as fakeReceiverCity,
+    om.fake_receiver_city_code as fakeReceiverCityCode,
+    om.fake_receiver_district as fakeReceiverDistrict,
+    om.fake_receiver_district_code as fakeReceiverDistrictCode,
+    om.fake_receiver_address as fakeReceiverAddress,
+    om.fake_idcard_no as fakeIdcardNo,
+    om.fake_fontside_pic as fakeFontsidePic,
+    om.fake_backside_pic as fakeBacksidePic,
+    om.fake_mergeside_pic as fakeMergesidePic,
+    
+    fm.flight_no as flightNo
+    from order_main om
+    left join end_point ep on om.endpoint_id = ep.id
+    left join pallet p on om.pallet_id = p.id
+    left join flight_main fm on p.flight_id = fm.id
+    where om.pallet_id = #{0}
+    order by om.pallet_sort asc
+	</select>
+	
+	<select id="exist" resultType="int">
+	select count(1) from order_main where order_no = #{0}
+	</select>
+	
+	<update id="replaceIdCard">
+	update order_main
+	set 
+	fake_receiver_name = #{clientName,jdbcType=VARCHAR},
+    fake_receiver_phone = #{phone,jdbcType=VARCHAR},
+    fake_receiver_province = #{province,jdbcType=VARCHAR},
+    fake_receiver_province_code = #{provinceCode,jdbcType=VARCHAR},
+    fake_receiver_city = #{city,jdbcType=VARCHAR},
+    fake_receiver_city_code = #{cityCode,jdbcType=VARCHAR},
+    fake_receiver_district = #{district,jdbcType=VARCHAR},
+    fake_receiver_district_code = #{districtCode,jdbcType=VARCHAR},
+    fake_receiver_address = #{address,jdbcType=VARCHAR},
+    fake_idcard_no = #{idcardNo,jdbcType=VARCHAR},
+    fake_fontside_pic = #{fontsidePic,jdbcType=VARCHAR},
+    fake_backside_pic = #{backsidePic,jdbcType=VARCHAR},
+    fake_mergeside_pic = #{mergesidePic,jdbcType=VARCHAR},
+    has_pic = '2'
+    where id = #{orderId}
+	</update>
+	
+	<select id="findNoPicByPalletId" resultType="OrderMain">
+	select om.id ,
+    om.order_no as orderNo,
+    om.sender_name as senderName,
+    om.sender_phone as senderPhone,
+    om.sender_province as senderProvince,
+    om.sender_city as senderCity,
+    om.sender_district senderDistrict,
+    om.sender_address senderAddress,
+    om.receiver_name as receiverName,
+    om.receiver_phone as receiverPhone,
+    om.receiver_province as receiverProvince,
+    om.receiver_province_code as receiverProvinceCode,
+    om.receiver_city as receiverCity,
+    om.receiver_city_code as receiverCityCode,
+    om.receiver_district as receiverDistrict,
+    om.receiver_district_code receiverDistrictCode,
+    om.receiver_address as receiverAddress,
+    om.endpoint_id as endpointId,
+    om.total_weight as totalWeight,
+    om.total_price as totalPrice,
+    om.pay_method as payMethod,
+    om.endpoint_pay as endpointPay,
+    om.status,
+    date_format(om.create_tm,'%Y-%m-%d %H:%i:%d') as createTm,
+    ep.point_name as pointName,
+    om.has_pic as hasPic,
+    om.idcard_no as idcardNo,
+    om.fontside_pic as fontsidePic,
+    om.backside_pic as backsidePic,
+    om.pallet_id as palletId
+    from order_main om
+    left join end_point ep on om.endpoint_id = ep.id
+    where om.pallet_id = #{0}
+    and om.has_pic = '0'
+	</select>
+	
+	<select id="findNoPicPhone" resultType="String">
+	select 
+	distinct om.receiver_phone 
+	from order_main om
+	where om.pallet_id = #{0} and om.has_pic = '0'
+	</select>
+	
+	<select id="findOrderPicByPalletId" resultType="OrderMain">
+	select om.id ,
+    om.order_no as orderNo,
+    om.receiver_name as receiverName,
+    om.has_pic as hasPic,
+    om.idcard_no as idcardNo,
+    om.fontside_pic as fontsidePic,
+    om.backside_pic as backsidePic,
+    om.mergeside_pic as mergesidePic,
+    om.fake_idcard_no as fakeIdcardNo,
+    om.fake_fontside_pic as fakeFontsidePic,
+    om.fake_backside_pic as fakeBacksidePic,
+    om.fake_mergeside_pic as fakeMergesidePic
+    from order_main om
+    where om.pallet_id = #{0}
+    order by om.pallet_sort asc
+	</select>
+	
+	<update id="createRelDeppon">
+	update order_main set 
+	express_type = 'deppon',
+    express_no = #{vasNo}
+    where id = #{id}
+	</update>
+	
+	<update id="createRelYuantong">
+	update order_main set 
+	express_type = 'yuantong',
+    express_no = #{vasNo}
+    where id = #{id}
+	</update>
+	
+	<insert id="createStep">
+	insert into order_step(
+	order_id ,
+    accept_time ,
+    remark 
+	) values (
+	#{1},
+	now(),
+	#{0}
+	)
+	</insert>
+	
+	<insert id="createStepBatch">
+	insert into order_step (
+	order_id ,
+    accept_time ,
+    remark 
+	) values 
+		<foreach collection="ids" item="orderId" index="index" separator="," >  
+     ( #{orderId}, now(), #{remark})  
+    	</foreach> 
+	</insert>
+	
+	<select id="findIdByPalletId" resultType="Long">
+	select id from order_main where pallet_id = #{0}
+	</select>
+</mapper>

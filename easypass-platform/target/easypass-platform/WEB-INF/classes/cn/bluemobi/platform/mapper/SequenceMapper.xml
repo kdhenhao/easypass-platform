@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.SequenceMapper">
+	<select id="findFromDataBase" resultType="Long">
+	select current_seq from system_seq where seq_key = #{0}
+	</select>
+	<update id="incrementDataBase">
+	update system_seq set current_seq = current_seq + 1 where seq_key = #{0}
+	</update>
+	<insert id="insertDataBase">
+	insert into system_seq (seq_key,current_seq) values (#{0},1)
+	</insert>
+</mapper>

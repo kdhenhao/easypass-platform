@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.UserMapper" >
+	<select id="loginByAccountAndPsd" resultType="User">
+	  select su.`ID` as id,
+      su.`USERNAME` as username,
+	  su.`PASSWORD` as password,
+	  su.`IS_ADMIN` as isAdmin,
+	  su.`ROLE_ID` as roleId, 
+	  sr.`ROLE_NAME` as roleName,
+	  su.`FULL_NAME` as fullName,
+	  su.`PHONE` as phone,
+	  su.`EMAIL` as email,
+	  su.`ADDRESS` as address,
+	  su.`REMARK` 
+	  from system_user su 
+	  left join system_role sr on su.role_id = sr.id
+	  where username = #{0} and password = #{1}
+	</select>
+	
+	<select id="searchUsers" resultType="User">
+	select su.`ID` as id,
+      su.`USERNAME` as username,
+	  su.`PASSWORD` as password,
+	  su.`IS_ADMIN` as isAdmin,
+	  su.`ROLE_ID` as roleId, 
+	  sr.`ROLE_NAME` as roleName,
+	  su.`FULL_NAME` as fullName,
+	  su.`PHONE` as phone,
+	  su.`EMAIL` as email,
+	  su.`ADDRESS` as address,
+	  su.`REMARK` 
+	  from system_user su 
+	  left join system_role sr on su.role_id = sr.id
+	  where 1=1
+	  <if test="username != null and username != ''">
+	  and su.username like CONCAT('%',#{username},'%')
+	  </if>
+	  <if test="fullName != null and fullName != ''">
+	  and su.full_name like CONCAT('%',#{fullName},'%')
+	  </if>
+	  <if test="roleId != null and roleId != ''">
+	  and su.role_id = #{roleId,jdbcType=BIGINT}
+	  </if>
+	  order by su.id desc
+	</select>
+	
+	<select id="findAllRoles" resultType="Map">
+	select id,role_name as text from system_role
+	</select>
+	
+	<select id="canInsertUser" resultType="int">
+	select count(1) from system_user where username = #{0}
+	</select>
+	<select id="canUpdateUser" resultType="int">
+	select count(1) from system_user where username = #{0} and id &lt;&gt; #{1}
+	</select>
+	<insert id="insertUser" useGeneratedKeys="true" keyProperty="id" parameterType="User">
+	insert into system_user (username,password,full_name,role_id,phone,email,remark,create_by,create_tm) values 
+	(#{username},#{password},#{fullName},#{roleId},#{phone,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{remark,jdbcType=VARCHAR},#{createBy},str_to_date(#{createTm},'%Y-%m-%d %H:%i:%s'))
+	</insert>
+	<update id="updateUser" parameterType="User">
+	update system_user set 
+	username=#{username},
+	full_name = #{fullName},
+	role_id = #{roleId},
+	phone = #{phone,jdbcType=VARCHAR},
+	email = #{email,jdbcType=VARCHAR},
+	remark = #{remark,jdbcType=VARCHAR},
+	modify_by = #{modifyBy},
+	modify_tm = str_to_date(#{modifyTm},'%Y-%m-%d %H:%i:%s')
+	where id = #{id}
+	</update>
+	
+	<update id="deleteUserById">
+	delete from system_user where id = #{0}
+	</update>
+	
+	<insert id="insertUserAuth">
+	insert into system_user_auth (user_id,auth_id) values (#{0},#{1})
+	</insert>
+	
+	<update id="deleteUserAuth">
+	delete from system_user_auth where user_id = #{0}
+	</update>
+	
+	<select id="findRoleAuth" resultType="String">
+	select auth_id from system_role_auth where role_id = #{0}
+	</select>
+	
+	<update id="updatePwd">
+	update system_user set password = #{0} where id = #{1} and password = #{2}
+	</update>
+	
+	<select id="findById" resultType="User">
+	select  
+	username,
+	full_name as fullName,
+	role_id as roleId
+    from system_user where id = #{0} 
+	</select>
+	
+	<select id="findMyRolesByUserName" resultType="String">
+	select role_id from system_user where `username` = #{0}
+	</select>
+	<select id="findMyAuthsByUserName" resultType="String">
+	select sua.auth_id
+	from system_user_auth sua 
+	left join system_user su on sua.user_id = su.id
+	where su.`username` = #{0}
+	</select>
+	<update id="updatePwdById">
+	update system_user set password = #{0} where id = #{1}
+	</update>
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.FlightMapper" >
+	<select id="findFlights" resultType="Map">
+	select fm.id,
+    fm.port_id as portId,
+    fm.flight_no as flightNo,
+    fm.flight_date as flightDate,
+    fm.flight_status flightStatus,
+    fp.port_name as portName,
+    su.full_name as modifyBy,
+    date_format(fm.modify_tm,'%Y-%m-%d %H:%i:%s') as modifyTm
+    from flight_main fm
+    left join flight_port fp on fm.port_id = fp.id
+    left join system_user su on fm.modify_by = su.id
+    where 1=1
+    <if test="flightNo != null and flightNo != ''">
+    and fm.flight_no like concat('%',#{flightNo},'%')
+    </if>
+    <if test="portId != null and portId != ''">
+    and fm.port_id = #{portId}
+    </if>
+    <if test="flightDate != null and flightDate != ''">
+    and fm.flight_date = #{flightDate}
+    </if>
+    order by fm.flight_date desc
+	</select>
+	
+	<insert id="insertFlight" >
+	insert into flight_main (flight_no,flight_date,port_id,create_by,create_tm) values (#{0},#{1},#{2},#{3},now())
+	</insert>
+	
+	<update id="updateFlight">
+	update flight_main set flight_no = #{0},flight_date = #{1},port_id = #{2},modify_by = #{3} ,modify_tm = now() where id = #{4}
+	</update>
+	
+	<update id="updateStatus">
+	update flight_main set flight_status = #{0} ,modify_by = #{2} ,modify_tm = now() where id = #{1}
+	</update>
+	
+	<select id="findForSelect2" resultType="Map">
+	select fm.id,
+    fm.port_id as portId,
+    fm.flight_no as flightNo,
+    fm.flight_date as flightDate,
+    fm.flight_status flightStatus,
+    fp.port_name as portName
+    from flight_main fm
+    left join flight_port fp on fm.port_id = fp.id
+    where fm.flight_no like concat('%',#{0},'%') or fm.flight_date like concat('%',#{0},'%') or fp.port_name like concat('%',#{0},'%')
+    limit 0,15
+	</select>
+	
+	<select id="findFlightNameById" resultType="String">
+	select concat(fm.flight_no,' ',fm.flight_date) from flight_main fm where fm.id = #{0}
+	</select>
+</mapper>

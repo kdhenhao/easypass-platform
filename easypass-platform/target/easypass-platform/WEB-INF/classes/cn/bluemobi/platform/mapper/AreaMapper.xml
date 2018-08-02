@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.bluemobi.platform.mapper.AreaMapper" >
+   	
+   	<select id="findProvinces" resultType="Map">
+   		select a.area_code as areaCode,a.area_name as areaName from system_area a where a.level = 0
+   	</select>
+   	
+   	<select id="findByParent" resultType="Map">
+   	    select a.area_code as areaCode,a.area_name as areaName from system_area a where a.parent_code = #{0}
+   	</select>
+</mapper>
