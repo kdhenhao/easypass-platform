@@ -140,7 +140,7 @@
 		        {"data":'gradeName'},
 		        {"data":'termName'},
 		        {"data":'tagName'}, 
-		        {"data":'campusName',"render":optCampus},
+		        {"data":'campusName'},
 		        {"data":'createTime'},
 		        { "data":'id',"render":optRender},
 		        { "data":'tag',"visible" : false}//隐藏列
@@ -197,14 +197,6 @@
 		but = but + '<a class="btn btn-danger btn-xs" href="javascript:deleteBtn('+row.id+')">删除</a>';
 		
 		return but;
-	}
-	
-	function optCampus(data,type,row,meta){
-		if(row.campusName==null || row.campusName ==''){
-			return "";
-		}else{
-			return row.campusName;
-		}
 	}
 	
 	/*删除*/

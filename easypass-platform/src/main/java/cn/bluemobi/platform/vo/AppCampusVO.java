@@ -21,11 +21,17 @@ public class AppCampusVO {
 	
 	private Integer id;
 
+    private String campusName;
+    
     private String name;
 
     private String logoImg;
 
     private String backgroundImg;
+    
+    private String createTime;
+
+    private String modifyTime;
 
     public Integer getId() {
         return id;
@@ -35,6 +41,14 @@ public class AppCampusVO {
         this.id = id;
     }
 
+    public String getCampusName() {
+        return campusName;
+    }
+
+    public void setCampusName(String campusName) {
+        this.campusName = campusName;
+    }
+    
     public String getName() {
         return name;
     }
@@ -57,5 +71,21 @@ public class AppCampusVO {
 
     public void setBackgroundImg(String backgroundImg) {
         this.backgroundImg = backgroundImg;
+    }
+    
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(String modifyTime) {
+        this.modifyTime = modifyTime;
     }
 }

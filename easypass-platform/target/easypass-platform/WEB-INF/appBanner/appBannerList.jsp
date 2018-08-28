@@ -125,7 +125,7 @@
 						<div class="form-group item">
 							<label for="fullName2" class="col-sm-3 control-label" >关联校区：</label>
 						    <div class="col-sm-6">
-						    	<select name="campusId" required='required' class="form-control required"  id="campusId">
+						    	<select class="select2_multiple form-control required" multiple="multiple" name="campusId" id="campusId" required='required'>
 									<option value="">--请选择校区--</option>
 									<c:if test="${campusList!=null}">
 										<c:forEach items="${campusList}" var="campus">
@@ -486,6 +486,10 @@
             }
         });
     }
+	
+    $("#logoFile").click(function(){
+		new uploadPreview({ UpBtn: "logoFile", DivShow: "imgDiv", ImgShow: "logoImg" });
+	});
 	
     function search(){
 		$('#appBanner').DataTable().ajax.reload(function(d){$.extend(d,serializeObject($("#searchForm")))}, true);;

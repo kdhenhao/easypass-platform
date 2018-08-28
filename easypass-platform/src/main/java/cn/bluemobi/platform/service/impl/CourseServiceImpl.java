@@ -67,6 +67,7 @@ public class CourseServiceImpl implements CourseService {
         map.put("term", course.getTerm());
         map.put("tag", course.getTag());
         map.put("campusId", course.getCampusId());
+        map.put("campusName", course.getCampusName());
         map.put("beginTime", course.getBeginTime());
         map.put("endTime", course.getEndTime());
         page.setList(courseMapper.getCourseList(map));

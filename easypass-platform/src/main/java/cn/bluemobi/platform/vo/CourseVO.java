@@ -134,6 +134,8 @@ public class CourseVO {
     private Integer offset;
     
     private Integer campusId;
+    
+    private String campusName;
 
     private String createTime;
 
@@ -399,6 +401,14 @@ public class CourseVO {
 
     public void setCampusId(Integer campusId) {
         this.campusId = campusId;
+    }
+    
+    public String getCampusName() {
+        return campusName;
+    }
+
+    public void setCampusName(String campusName) {
+        this.campusName = campusName;
     }
     
     public Integer getPoints() {

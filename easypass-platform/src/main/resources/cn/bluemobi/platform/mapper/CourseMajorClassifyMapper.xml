@@ -13,10 +13,10 @@
 		LEFT JOIN app_campus t2 on t1.campus_id=t2.id 
 		where 1=1
 		<if test="name !=null and name !=''">
-		<![CDATA[	and name like  CONCAT('%',#{name},'%') ]]> 
+		<![CDATA[	and t1.name like  CONCAT('%',#{name},'%') ]]> 
 		</if>
 		<if test="campusName !=null and campusName !=''">
-		<![CDATA[	and campusName like  CONCAT('%',#{campusName},'%') ]]> 
+		<![CDATA[	and t2.name like  CONCAT('%',#{campusName},'%') ]]> 
 		</if>
 		order by sort asc
 	</select>
@@ -31,7 +31,7 @@
 		name = #{name},
 		sort = #{sort},
 		img = #{img},
-		campusId = #{campusId},
+		campus_id = #{campusId},
 		MODIFY_Time =Now()
 		where id = #{id}
 	</update>

@@ -5,7 +5,13 @@
 <html>
 <head>
 <%@ include file="/WEB-INF/common/head.jsp"%>
-
+<style>
+.tabbable .tabs {list-style: none; margin: 0 10px; padding: 0;}
+.tabbable .tabs li {list-style: none; margin: 0; padding: 0; display: inline-block; position: relative; z-index: 1;}
+.tabbable .tabs li a {text-decoration: none; color: #000; border: 1px solid #ccc; padding: 5px; display: inline-block; border-radius: 5px 5px 0 0; background: #f5f5f5;}
+.tabbable .tabs li a.active, .tabbable .tabs li a:hover {border-bottom-color: #fff; background: #fff;}
+.tabcontent {border: 1px solid #ccc; margin-top: -1px; padding: 10px;}
+</style>
 </head>
 <body class="${cookie.bodyClass.value}">
 	<div class="container body">
@@ -15,16 +21,13 @@
 			<!-- page content -->
 			<div class="right_col" role="main" id="main">
 				<div class="x_panel">
-					<button class="tablink" onclick="openPage('courseInfo', this)" id="defaultOpen">
-						<div class="x_title">
+					<div class="x_title">
 						<h2>
 							<c:if test="${course.id !=null }">编辑课程信息</c:if>
 							<c:if test="${course.id ==null }">新增课程信息</c:if>
 						</h2>
 						<div class="clearfix"></div>
-						</div>
-					</button>
-					<button class="tablink" onclick="openPage('courseRemarks', this)">课程评论</button>
+					</div>
 					<div class="x_content">
 						<form class="form-horizontal" role="form" novalidate enctype="multipart/form-data" method="post" id="addCourseForm" >
 							<input type="hidden" name="id" id="id" value="${course.id}">
@@ -33,7 +36,13 @@
 							<input type="hidden" name="dir" value="images">
 							<input type="hidden" name="video" value="${course.video}">
 							
-							<div class="container" id="courseInfo">
+							<div class="tabbable">
+							    <ul class="tabs">
+							        <li><a href="#tab1">课程信息</a></li>
+							        <li><a href="#tab2">课评信息</a></li>
+							    </ul>
+							
+							<div class="tab" id="tab1">
 								<div class="form-group item">
 									<div class="col-lg-2" style="text-align: right;">
 									<label class="control-label">课程名称：</label>
@@ -55,7 +64,7 @@
 										<select class="select2_multiple form-control required" multiple="multiple" name="classifyId" id="classifyId" required='required'>
 											<c:if test="${classifyList!=null}">
 												<c:forEach items="${classifyList}" var="classify">
-													<option value="${classify.id}" >${classify.name}</option>
+													<option value="${classify.id}" <c:if test="${classify.id==course.classifyId}">selected="selected"</c:if>>${classify.name}</option>
 												</c:forEach>
 											</c:if>
 										</select>
@@ -122,7 +131,7 @@
 										<select class="select2_multiple form-control required" multiple="multiple" name="campusId" id="campusId" required='required'>
 											<c:if test="${campusList!=null}">
 												<c:forEach items="${campusList}" var="campus">
-													<option value="${campus.id}">${campus.name}</option>
+													<option value="${campus.id}" <c:if test="${campus.id==course.campusId}">selected="selected"</c:if>>${campus.name}</option>
 												</c:forEach>
 											</c:if>
 										</select>
@@ -373,7 +382,6 @@
 								    </div>
 								</div>	
 								
-								<div class="container" id="courseRemarks">
 								<div class="form-group item">
 									<div class="col-lg-2" style="text-align: right;">
 									<label class="control-label">课程详情：</label>
@@ -382,25 +390,10 @@
 										<textarea  name="courseDetail" id="courseDetail" >${course.courseDetail}</textarea>
 									</div>
 								</div>
-								<div class="form-group item">
-									<div class="col-lg-4" >
-										<label class="control-label">&nbsp;</label>
-									</div>
-									<div class="col-lg-1" >
-									</div>
-									<div class="col-lg-1" >
-										<!-- <input type="button" class="form-control btn btn-success" id="save" onclick="saveCourse();" value="保存"/> -->
-										<input type=submit class="form-control btn btn-success" id="save"  value="保存"/>
-									</div>
-									<div class="col-lg-1" >
-										<input type="button" class="form-control btn btn-default" value="取消" onclick="cancelBtn();"/>
-									</div>
-									<div class="col-lg-4">
-										<label class="control-label" style="color: #ccc;" >&nbsp;</label>
-									</div>
-								</div>
+							
 							</div>
 							
+							<div class="tab" id="tab2">
 							<div class="form-group item">
 									<div class="col-lg-2" style="text-align: right;">
 									<label class="control-label">内容难度：</label>
@@ -499,15 +492,12 @@
 								
 								<div class="form-group item">
 									<div class="col-lg-2" style="text-align: right;">
-										<label class="control-label">显示
-										  <input type="checkbox" name="display" value="1" checked="checked">
-										  <span class="checkmark"></span>
-										</label>
-									
-										<label class="control-label">不显示
-										  <input type="checkbox" name="display" value="0">
-										  <span class="checkmark"></span>
-										</label>
+									<label class="control-label">显示课评：</label>
+									</div>
+									<div class="col-lg-6">
+									<INPUT type="radio" name="display" value="0"/><label class="control-label">不显示</label>
+									&nbsp;&nbsp;&nbsp;&nbsp;
+									<INPUT type="radio" name="display" value="1" checked="checked"/><label class="control-label">显示</label>
 									</div>
 									<div class="col-lg-4">
 										<label class="control-label" style="color: #ccc;">*必填项</label>
@@ -515,7 +505,29 @@
 								</div>
 								
 							</div>
-								
+							
+							<div class="container">
+							<div class="form-group item">
+									<div class="col-lg-4" >
+										<label class="control-label">&nbsp;</label>
+									</div>
+									<div class="col-lg-1" >
+									</div>
+									<div class="col-lg-1" >
+										<!-- <input type="button" class="form-control btn btn-success" id="save" onclick="saveCourse();" value="保存"/> -->
+										<input type=submit class="form-control btn btn-success" id="save"  value="保存"/>
+									</div>
+									<div class="col-lg-1" >
+										<input type="button" class="form-control btn btn-default" value="取消" onclick="cancelBtn();"/>
+									</div>
+									<div class="col-lg-4">
+										<label class="control-label" style="color: #ccc;" >&nbsp;</label>
+									</div>
+								</div>
+							</div>
+							
+							</div>
+							
 						</form>
 					</div>
 				</div>
@@ -694,22 +706,30 @@
 			window.location.href= ctx+ 'admin/course/toCoursePage?time='+(new Date()).getTime();
 		}
 		
-		function openPage(pageName, elmnt) {
-		    var i, tablinks;
-
-		    // Remove the background color of all tablinks/buttons
-		    tablinks = document.getElementsByClassName("tablink");
-		    for (i = 0; i < tablinks.length; i++) {
-		        tablinks[i].style.backgroundColor = "";
-		    }
-
-		    // Show the specific tab content
-		    document.getElementById(pageName).style.display = "block";
-
+		function openPage1() {
+			$("#courseInfo").style.display = "block";
+		}
+		
+		function openPage2() {
+			$("#courseRemarks").style.display = "block";
 		}
 
 		// Get the element with id="defaultOpen" and click on it
-		document.getElementById("defaultOpen").click();
+		$("#defaultOpen").click();
+		
+		$(document).ready(function(){
+		    $(".tabbable").find(".tab").hide();
+		    $(".tabbable").find(".tab").first().show();
+		    $(".tabbable").find(".tabs li").first().find("a").addClass("active");
+		    $(".tabbable").find(".tabs").find("a").click(function(){
+		        tab = $(this).attr("href");
+		        $(".tabbable").find(".tab").hide();
+		        $(".tabbable").find(".tabs").find("a").removeClass("active");
+		        $(tab).show();
+		        $(this).addClass("active");
+		        return false;
+		    });
+		});
 		
 	</script>
 </body>

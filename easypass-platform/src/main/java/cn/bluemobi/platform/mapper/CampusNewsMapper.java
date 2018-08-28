@@ -20,5 +20,7 @@ public interface CampusNewsMapper {
     int addNews(CampusNews campusNews);
 
     int updateNews(CampusNews campusNews);
+    
+    int deleteNewsById(Long id);
 
 }

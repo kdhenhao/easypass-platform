@@ -12,8 +12,6 @@ package cn.bluemobi.platform.mapper;
 import java.util.List;
 import java.util.Map;
 
-import cn.bluemobi.platform.entity.report.VideoClick;
-
 /**
  * Description: <br/>
  * Date: 2017年8月3日 下午12:52:00 <br/>

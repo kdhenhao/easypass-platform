@@ -10,6 +10,7 @@ package cn.bluemobi.platform.controller.appCampus;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -30,11 +31,16 @@ import cn.bluemobi.platform.vo.AppCampusVO;
  * @see
  */
 @Controller
-@RequestMapping("admin/AppCampus")
+@RequestMapping("admin/appCampus")
 public class AppCampusController extends PlatformBaseController {
     @Autowired
     private AppCampusService appCampusService;
 
+    @RequestMapping("/toAppCampusPage")
+    public String toAppCampusPage(Model model) {
+        return "appCampus/appCampusList";
+    }
+    
     /**
      * 查询所有
      */

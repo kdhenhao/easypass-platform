@@ -87,15 +87,12 @@
 						     </div>
 						</div>
 							<div class="form-group item">
-									<div class="col-lg-2" style="text-align: right;">
-									<label class="control-label">校区：</label>
-									</div>
+									<label class="col-sm-3 control-label">校区：</label>
 									<div class="col-lg-6">
-										
 										<select class="select2_multiple form-control required" multiple="multiple" name="campusId" id="campusId" required='required'>
 											<c:if test="${campusList!=null}">
 												<c:forEach items="${campusList}" var="campus">
-													<option value="${campus.id}">${campus.name}</option>
+													<option value="${campus.id}" <c:if test="${campus.id==classify.campusId}">selected="selected"</c:if>>${campus.name}</option>
 												</c:forEach>
 											</c:if>
 										</select>
@@ -269,7 +266,7 @@
 		var row = $('#courseMajorManage').DataTable().rows().data()[index];
 		$("#modelTitle").html("编辑专业分类");
 		$("#majorName").val(row.name);
-		$("#campusName").val(row.campusName);
+		$("#campusId").val(row.campusId);
 		$("#sort").val(row.sort);
 		$("#id").val(row.id);
 		

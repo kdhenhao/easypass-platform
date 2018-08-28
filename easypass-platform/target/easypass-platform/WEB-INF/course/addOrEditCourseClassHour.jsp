@@ -216,10 +216,7 @@
 									<label class="control-label">真实播放次数：</label>
 									</div>
 									<div class="col-lg-6">
-										<input type="number" class="form-control number required" placeholder="请输入真实播放次数" name="clickNumReal" id="clickNumReal"  value="${courseClassHour.clickNumReal}"  data-validate-length-range="0,11">
-									</div>
-									<div class="col-lg-4">
-										<label class="control-label" style="color: #ccc;">*必填项</label>
+										<input type="number" class="form-control number required" placeholder="请输入真实播放次数" name="clickNumReal" id="clickNumReal"  disabled="disabled" value="${courseClassHour.clickNumReal}"  data-validate-length-range="0,11">
 									</div>
 								</div>
 								
@@ -228,10 +225,7 @@
 									<label class="control-label">真实购买次数：</label>
 									</div>
 									<div class="col-lg-6">
-										<input type="number" class="form-control number required" placeholder="请输入真实购买次数" name="purchaseNumReal" id="purchaseNumReal"  value="${courseClassHour.purchaseNumReal}"  data-validate-length-range="0,11">
-									</div>
-									<div class="col-lg-4">
-										<label class="control-label" style="color: #ccc;">*必填项</label>
+										<input type="number" class="form-control number required" placeholder="请输入真实购买次数" name="purchaseNumReal" id="purchaseNumReal"  disabled="disabled" value="${courseClassHour.purchaseNumReal}"  data-validate-length-range="0,11">
 									</div>
 								</div>
 								

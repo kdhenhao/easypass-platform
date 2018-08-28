@@ -24,6 +24,8 @@ public class Classify {
     private String name;
 
     private Integer parentId;
+    
+    private String campusName;
 
     private Integer level;
 
@@ -110,6 +112,14 @@ public class Classify {
 
     public void setCampusId(Integer campusId) {
         this.campusId = campusId;
+    }
+    
+    public String getCampusName() {
+        return campusName;
+    }
+
+    public void setCampusName(String campusName) {
+        this.campusName = campusName;
     }
 
 }

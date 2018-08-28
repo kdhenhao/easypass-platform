@@ -5,8 +5,8 @@
 		SELECT t1.id,
 		t2.id as campusId, 
 		t1.url as campusUrl, 
-		DATE_FORMAT(t1.create_time,'%Y-%m-%d %h:%m:%s') AS createTm, 
-		DATE_FORMAT(t1.modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTm, 
+		DATE_FORMAT(t1.create_time,'%Y-%m-%d %h:%m:%s') AS createTime, 
+		DATE_FORMAT(t1.modify_time,'%Y-%m-%d %h:%m:%s') AS modifyTime, 
 		t2.name as campusName
 		FROM news t1 RIGHT JOIN app_campus t2 ON t1.campus_id=t2.id 
 		where 1=1 
@@ -33,5 +33,9 @@
 		modify_time = now() 
 		where campus_id = #{campusId}
 	</update>
+	
+	<delete id="deleteNewsById">
+		DELETE FROM news WHERE id = #{id}
+	</delete>
 
 </mapper>

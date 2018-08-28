@@ -14,8 +14,10 @@ public class CampusNews{
     private Integer id;
 
     private Integer campusId;
+    
+    private String campusName;
 
-    private String url;
+    private String campusUrl;
 
     private String createTime;
 
@@ -37,12 +39,12 @@ public class CampusNews{
         this.campusId = campusId;
     }
 
-    public String getUrl() {
-        return url;
+    public String getCampusUrl() {
+        return campusUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setCampusUrl(String campusUrl) {
+        this.campusUrl = campusUrl;
     }
 
     public String getCreateTime() {
@@ -59,5 +61,13 @@ public class CampusNews{
 
     public void setModifyTime(String modifyTime) {
         this.modifyTime = modifyTime;
+    }
+    
+    public String getCampusName() {
+        return campusName;
+    }
+
+    public void setCampusName(String campusName) {
+        this.campusName = campusName;
     }
 }

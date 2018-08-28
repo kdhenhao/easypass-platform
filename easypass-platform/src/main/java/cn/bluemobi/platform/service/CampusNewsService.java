@@ -3,7 +3,6 @@ package cn.bluemobi.platform.service;
 
 import cn.bluemobi.common.core.dto.MapDto;
 import cn.bluemobi.common.core.dto.Page;
-import cn.bluemobi.common.core.dto.PageCondition;
 import cn.bluemobi.platform.entity.campusNews.CampusNews;
 
 public interface CampusNewsService {
@@ -12,6 +11,8 @@ public interface CampusNewsService {
 
     MapDto updateNews(CampusNews campusNews);
 
-    Page<CampusNews> findNews(PageCondition cond);
+    Page<CampusNews> findNews(Integer start, Integer length);
+    
+    MapDto deleteNewsById(Long id);
 
 }

@@ -45,7 +45,9 @@ public class CourseMajorClassifyController extends PlatformBaseController {
     private AppCampusService appCampusService;
 
     @RequestMapping("/courseMajorClassifyList")
-    public String areaManageList() {
+    public String areaManageList(Model model) {
+    	List<AppCampus> campusList = appCampusService.getAllCampusList();
+    	model.addAttribute("campusList", campusList);
         return "course/courseMajorClassifyList";
     }
 
@@ -62,11 +64,9 @@ public class CourseMajorClassifyController extends PlatformBaseController {
      */
     @RequestMapping("/find")
     @ResponseBody
-    public DatatablePage getCourseLevel1ByPage(Model model, @RequestParam("draw") Integer draw, @RequestParam("start") Integer start,
+    public DatatablePage getCourseLevel1ByPage(@RequestParam("draw") Integer draw, @RequestParam("start") Integer start,
             @RequestParam("length") Integer length, @RequestParam(value = "name", required = false) String name,
             @RequestParam("campusName") String campusName) {
-    	List<AppCampus> campusList = appCampusService.getAllCampusList();
-        model.addAttribute("campusList", campusList);
         return new DatatablePage(draw, courseService.getCourseClassifyByPage(start, length, name, campusName));
     }
 
